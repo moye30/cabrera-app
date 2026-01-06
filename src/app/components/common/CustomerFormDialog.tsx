@@ -1,0 +1,142 @@
+import { Customer } from "@/app/types"
+import { Button } from "@/app/components/ui/button"
+import { Input } from "@/app/components/ui/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/app/components/ui/dialog"
+import { Label } from "@/app/components/ui/label"
+import { Plus } from "lucide-react"
+
+interface CustomerFormDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  editingCustomer: Customer | null
+  formData: {
+    name: string
+    email: string
+    phone: string
+    address: string
+    discountPercentage: string
+  }
+  setFormData: (data: any) => void
+  onSubmit: (e: React.FormEvent) => void
+}
+
+export function CustomerFormDialog({
+  open,
+  onOpenChange,
+  editingCustomer,
+  formData,
+  setFormData,
+  onSubmit,
+}: CustomerFormDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        <Button
+          onClick={() =>
+            setFormData({
+              name: "",
+              email: "",
+              phone: "",
+              address: "",
+              discountPercentage: "",
+            })
+          }
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Agregar Cliente
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {editingCustomer ? "Editar Cliente" : "Nuevo Cliente"}
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <Label>Nombre Completo</Label>
+            <Input
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div>
+            <Label>Correo Electrónico</Label>
+            <Input
+              type="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div>
+            <Label>Teléfono</Label>
+            <Input
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div>
+            <Label>Dirección</Label>
+            <Input
+              value={formData.address}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div>
+            <Label>Descuento (%)</Label>
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              value={formData.discountPercentage}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  discountPercentage: e.target.value,
+                })
+              }
+              required
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit">
+              {editingCustomer ? "Actualizar" : "Agregar"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
