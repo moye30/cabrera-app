@@ -19,11 +19,14 @@ export function ProductsManagement({
   const [searchTerm, setSearchTerm] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+
   const [formData, setFormData] = useState({
     name: "",
     category: "",
     totalStock: "",
     unitPrice: "",
+    acquisitionCost: "",
+    lossCost: "",
     image: undefined as string | undefined,
   })
 
@@ -32,6 +35,11 @@ export function ProductsManagement({
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.category.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const handleDeleteProduct = (productId: string) => {
+    onProductsChange(products.filter((p) => p.id !== productId))
+    toast.success("Producto eliminado correctamente")
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,6 +56,8 @@ export function ProductsManagement({
                 p.availableStock +
                 (Number(formData.totalStock) - p.totalStock),
               unitPrice: Number(formData.unitPrice),
+              acquisitionCost: Number(formData.acquisitionCost),
+              lossCost: Number(formData.lossCost),
               image: formData.image ?? p.image,
             }
           : p
@@ -66,6 +76,8 @@ export function ProductsManagement({
           availableStock: Number(formData.totalStock),
           rentedStock: 0,
           unitPrice: Number(formData.unitPrice),
+          acquisitionCost: Number(formData.acquisitionCost),
+          lossCost: Number(formData.lossCost),
           image: formData.image,
         },
       ])
@@ -78,6 +90,8 @@ export function ProductsManagement({
       category: "",
       totalStock: "",
       unitPrice: "",
+      acquisitionCost: "",
+      lossCost: "",
       image: undefined,
     })
     setEditingProduct(null)
@@ -126,10 +140,13 @@ export function ProductsManagement({
                 category: p.category,
                 totalStock: p.totalStock.toString(),
                 unitPrice: p.unitPrice.toString(),
+                acquisitionCost: p.acquisitionCost?.toString() ?? "",
+                lossCost: p.lossCost?.toString() ?? "",
                 image: p.image,
               })
               setIsDialogOpen(true)
             }}
+            onDelete={handleDeleteProduct}
           />
         ))}
       </div>

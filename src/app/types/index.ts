@@ -10,8 +10,8 @@ export interface Product {
   rentedStock: number
 
   unitPrice: number           
-  replacementCost: number     
-  acquisitionCost: number     
+    acquisitionCost: number
+  lossCost: number
 
   image?: string
 }

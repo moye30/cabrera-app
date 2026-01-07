@@ -20,6 +20,8 @@ interface ProductFormDialogProps {
     category: string
     totalStock: string
     unitPrice: string
+    acquisitionCost: string
+    lossCost: string
     image?: string
   }
   setFormData: (data: any) => void
@@ -34,7 +36,6 @@ export function ProductFormDialog({
   setFormData,
   onSubmit,
 }: ProductFormDialogProps) {
-
   const handleImageChange = (file: File) => {
     const reader = new FileReader()
     reader.onloadend = () => {
@@ -56,6 +57,8 @@ export function ProductFormDialog({
               category: "",
               totalStock: "",
               unitPrice: "",
+              acquisitionCost: "",
+              lossCost: "",
               image: undefined,
             })
           }
@@ -130,7 +133,7 @@ export function ProductFormDialog({
           </div>
 
           <div>
-            <Label>Precio Unitario</Label>
+            <Label>Precio Unitario (Renta)</Label>
             <Input
               type="number"
               min="0"
@@ -143,8 +146,46 @@ export function ProductFormDialog({
             />
           </div>
 
+          <div>
+            <Label>Costo de Adquisición</Label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.acquisitionCost}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  acquisitionCost: e.target.value,
+                })
+              }
+              required
+            />
+          </div>
+
+          <div>
+            <Label>Costo por Pérdida</Label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.lossCost}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  lossCost: e.target.value,
+                })
+              }
+              required
+            />
+          </div>
+
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit">
