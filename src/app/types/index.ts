@@ -50,6 +50,7 @@ export interface Rental {
   total: number;
   deposit: number;
   notes: string;
+  archived?: boolean;
 }
 
 export interface LossItem {

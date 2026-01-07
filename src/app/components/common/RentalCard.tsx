@@ -7,15 +7,20 @@ import {
 } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Badge } from "@/app/components/ui/badge"
-import { Calendar, Download } from "lucide-react"
+import { Calendar, Download, Archive } from "lucide-react"
 import { generateInvoicePDF } from "@/app/utils/pdf"
 
 interface RentalCardProps {
   rental: Rental
   onReturn: (rental: Rental) => void
+  onArchive: (rental: Rental) => void
 }
 
-export function RentalCard({ rental, onReturn }: RentalCardProps) {
+export function RentalCard({
+  rental,
+  onReturn,
+  onArchive,
+}: RentalCardProps) {
   const statusMap = {
     active: { label: "Activa", variant: "default" as const },
     returned: { label: "Devuelta", variant: "outline" as const },
@@ -24,9 +29,9 @@ export function RentalCard({ rental, onReturn }: RentalCardProps) {
   const status = statusMap[rental.status]
 
   return (
-    <Card>
+    <Card className={rental.archived ? "opacity-70" : ""}>
       <CardHeader>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-start">
           <div>
             <CardTitle>{rental.customerName}</CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -73,7 +78,7 @@ export function RentalCard({ rental, onReturn }: RentalCardProps) {
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
             variant="outline"
@@ -87,6 +92,17 @@ export function RentalCard({ rental, onReturn }: RentalCardProps) {
             <Button size="sm" onClick={() => onReturn(rental)}>
               <Calendar className="mr-2 h-4 w-4" />
               Marcar Devuelta
+            </Button>
+          )}
+
+          {!rental.archived && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => onArchive(rental)}
+            >
+              <Archive className="mr-2 h-4 w-4" />
+              Archivar
             </Button>
           )}
         </div>
