@@ -4,15 +4,12 @@ export interface Product {
   id: string
   name: string
   category: string
-
   totalStock: number
   availableStock: number
   rentedStock: number
-
   unitPrice: number           
-    acquisitionCost: number
+  acquisitionCost: number
   lossCost: number
-
   image?: string
 }
 

@@ -38,18 +38,21 @@ export function LossesManagement({
 
   const [items, setItems] = useState<LossItem[]>([])
 
+  // Solo se pueden reportar pérdidas de rentas ya devueltas
   const returnedRentals = rentals.filter(
     (r) => r.status === "returned"
   )
 
   const filteredLosses = losses.filter(
     (l) =>
-      l.customerName
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
+      l.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.rentalId.includes(searchTerm)
   )
 
+  /* ===============================
+     AGREGAR ARTÍCULO CON PÉRDIDA
+     👉 USA lossCost (precio reposición)
+  ================================ */
   const handleAddItem = () => {
     const rental = returnedRentals.find(
       (r) => r.id === formData.rentalId
@@ -72,6 +75,9 @@ export function LossesManagement({
     )
     if (!product) return
 
+    // 🔑 PRECIO QUE SE COBRA POR PÉRDIDA
+    const lossPrice = product.lossCost ?? product.unitPrice
+
     setItems([
       ...items,
       {
@@ -80,9 +86,9 @@ export function LossesManagement({
         quantity: qty,
         lossType: itemForm.lossType,
 
-        // ✅ CAMBIO CLAVE
-        unitPrice: product.replacementCost,
-        totalLoss: qty * product.replacementCost,
+        // ✅ AQUÍ ESTÁ EL CAMBIO CLAVE
+        unitPrice: lossPrice,
+        totalLoss: qty * lossPrice,
       },
     ])
 
@@ -97,6 +103,9 @@ export function LossesManagement({
     setItems(items.filter((i) => i.productId !== id))
   }
 
+  /* ===============================
+     CREAR REPORTE DE PÉRDIDAS
+  ================================ */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (items.length === 0) return
@@ -107,7 +116,7 @@ export function LossesManagement({
     if (!rental) return
 
     const totalLoss = items.reduce(
-      (s, i) => s + i.totalLoss,
+      (sum, item) => sum + item.totalLoss,
       0
     )
 
@@ -121,8 +130,10 @@ export function LossesManagement({
       notes: formData.notes,
     }
 
+    // Guardar reporte de pérdidas
     onLossesChange([...losses, newLoss])
 
+    // Reducir stock total por productos perdidos
     onProductsChange(
       products.map((p) => {
         const item = items.find((i) => i.productId === p.id)
@@ -132,7 +143,7 @@ export function LossesManagement({
       })
     )
 
-    toast.success("Reporte de pérdidas creado")
+    toast.success("Reporte de pérdidas creado correctamente")
     setIsDialogOpen(false)
     setItems([])
   }
