@@ -47,7 +47,7 @@ export function ProductCard({
       ? { label: "Stock Medio", variant: "default" as const }
       : { label: "Stock Alto", variant: "default" as const }
 
-  // 🛡️ Valores seguros (no crashea)
+  // Valores seguros (no crashea)
   const acquisitionCost = product.acquisitionCost ?? 0
   const lossCost = product.lossCost ?? 0
   const unitPrice = product.unitPrice ?? 0
@@ -55,7 +55,6 @@ export function ProductCard({
   return (
     <>
       <Card className="overflow-hidden">
-        {/* Imagen */}
         {product.image && (
           <div className="h-48 w-full bg-muted flex items-center justify-center">
             <img
@@ -150,7 +149,6 @@ export function ProductCard({
         </CardContent>
       </Card>
 
-      {/* Confirmación eliminar */}
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

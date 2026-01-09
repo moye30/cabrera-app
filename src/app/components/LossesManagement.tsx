@@ -49,10 +49,7 @@ export function LossesManagement({
       l.rentalId.includes(searchTerm)
   )
 
-  /* ===============================
-     AGREGAR ARTÍCULO CON PÉRDIDA
-     👉 USA lossCost (precio reposición)
-  ================================ */
+
   const handleAddItem = () => {
     const rental = returnedRentals.find(
       (r) => r.id === formData.rentalId
@@ -75,7 +72,7 @@ export function LossesManagement({
     )
     if (!product) return
 
-    // 🔑 PRECIO QUE SE COBRA POR PÉRDIDA
+    // PRECIO QUE SE COBRA POR PÉRDIDA
     const lossPrice = product.lossCost ?? product.unitPrice
 
     setItems([
@@ -86,7 +83,7 @@ export function LossesManagement({
         quantity: qty,
         lossType: itemForm.lossType,
 
-        // ✅ AQUÍ ESTÁ EL CAMBIO CLAVE
+        //  AQUÍ ESTÁ EL CAMBIO CLAVE
         unitPrice: lossPrice,
         totalLoss: qty * lossPrice,
       },
@@ -103,9 +100,6 @@ export function LossesManagement({
     setItems(items.filter((i) => i.productId !== id))
   }
 
-  /* ===============================
-     CREAR REPORTE DE PÉRDIDAS
-  ================================ */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (items.length === 0) return

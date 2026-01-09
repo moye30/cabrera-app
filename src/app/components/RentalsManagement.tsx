@@ -45,9 +45,6 @@ export function RentalsManagement({
 
   const [items, setItems] = useState<RentalItem[]>([])
 
-  // =============================
-  // NUEVA FUNCIÓN CLAVE
-  // =============================
   const getAvailableStockForDates = (
     product: Product,
     start: string,
@@ -162,7 +159,6 @@ export function RentalsManagement({
 
     onRentalsChange([...rentals, newRental])
 
-    // ❌ YA NO SE MODIFICA EL STOCK AQUÍ
 
     onCustomersChange(
       customers.map(c =>

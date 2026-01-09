@@ -27,7 +27,6 @@ export function RentalCard({
 }: RentalCardProps) {
   return (
     <Card className="overflow-hidden">
-      {/* HEADER */}
       <CardHeader className="flex flex-row justify-between items-start gap-4">
         <div className="space-y-1">
           <CardTitle>{rental.customerName}</CardTitle>
@@ -67,9 +66,7 @@ export function RentalCard({
         </div>
       </CardHeader>
 
-      {/* CONTENIDO */}
       <CardContent className="space-y-4">
-        {/* FECHAS */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Fecha de cotizacion</p>
@@ -87,7 +84,6 @@ export function RentalCard({
           </div>
         </div>
 
-        {/* ITEMS */}
         <div className="border rounded-md">
           <div className="grid grid-cols-3 gap-2 px-3 py-2 text-xs font-semibold bg-muted">
             <span>Producto</span>
@@ -107,7 +103,6 @@ export function RentalCard({
           ))}
         </div>
 
-        {/* TOTALES */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Subtotal</p>
@@ -132,7 +127,6 @@ export function RentalCard({
           </div>
         </div>
 
-        {/* ESTADO + NOTAS */}
         <div className="flex flex-wrap items-center gap-4">
           <Badge
             variant={

@@ -64,7 +64,6 @@ export function RentalFormDialog({
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          {/* Cliente y fechas */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Cliente</Label>
@@ -121,7 +120,6 @@ export function RentalFormDialog({
             </div>
           </div>
 
-          {/* Artículos */}
           <div>
             <Label>Artículos</Label>
             <div className="flex gap-2 mt-2">
@@ -169,7 +167,6 @@ export function RentalFormDialog({
             />
           )}
 
-          {/* Depósito y notas */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Depósito</Label>

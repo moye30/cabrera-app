@@ -76,7 +76,6 @@ export function ProductFormDialog({
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          {/* Imagen */}
           <div>
             <Label>Imagen del Producto</Label>
             <Input
