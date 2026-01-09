@@ -34,21 +34,24 @@ export interface RentalItem {
 }
 
 export interface Rental {
-  id: string;
-  customerId: string;
-  customerName: string;
-  items: RentalItem[];
-  rentalDate: string;
-  returnDate: string;
-  eventDate: string;
-  status: 'pending' | 'active' | 'returned' | 'overdue';
-  subtotal: number;
-  discount: number;
-  total: number;
-  deposit: number;
-  notes: string;
-  archived?: boolean;
+  id: string
+  customerId: string
+  customerName: string
+  rentalDate: string
+  deliveryDate: string
+  returnDate: string
+  eventDate: string
+  status: "pending" | "active" | "returned" | "overdue"
+  items: RentalItem[]
+  subtotal: number
+  discount: number
+  total: number
+  deposit: number
+
+  notes: string
+  archived?: boolean
 }
+
 
 export interface LossItem {
   productId: string;

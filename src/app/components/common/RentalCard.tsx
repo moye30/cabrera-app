@@ -72,17 +72,17 @@ export function RentalCard({
         {/* FECHAS */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">Fecha renta</p>
+            <p className="text-muted-foreground">Fecha de cotizacion</p>
             <p>{rental.rentalDate}</p>
           </div>
 
           <div>
-            <p className="text-muted-foreground">Fecha evento</p>
+            <p className="text-muted-foreground">Fecha de entrega</p>
             <p>{rental.eventDate || "—"}</p>
           </div>
 
           <div>
-            <p className="text-muted-foreground">Fecha devolución</p>
+            <p className="text-muted-foreground">Fecha de recoleccion</p>
             <p>{rental.returnDate || "—"}</p>
           </div>
         </div>

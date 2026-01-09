@@ -88,7 +88,7 @@ export function RentalFormDialog({
             </div>
 
             <div>
-              <Label>Fecha de Renta</Label>
+              <Label>Fecha de cotizacion</Label>
               <Input
                 type="date"
                 value={formData.rentalDate}
@@ -99,7 +99,7 @@ export function RentalFormDialog({
             </div>
 
             <div>
-              <Label>Fecha del Evento</Label>
+              <Label>Fecha de entrega</Label>
               <Input
                 type="date"
                 value={formData.eventDate}
@@ -110,7 +110,7 @@ export function RentalFormDialog({
             </div>
 
             <div>
-              <Label>Fecha de Devolución</Label>
+              <Label>Fecha de recoleccion</Label>
               <Input
                 type="date"
                 value={formData.returnDate}
