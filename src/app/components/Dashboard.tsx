@@ -26,11 +26,8 @@ export function Dashboard({ stats }: DashboardProps) {
       {/* Header */}
       <div>
         <h2 className="text-3xl tracking-tight font-bold">
-          Dashboard
+          Inicio
         </h2>
-        <p className="text-muted-foreground">
-          Vista general del negocio
-        </p>
       </div>
 
       {/* Stats Cards */}
