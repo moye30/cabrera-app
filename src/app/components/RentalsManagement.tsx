@@ -29,12 +29,11 @@ export function RentalsManagement({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [showArchived, setShowArchived] = useState(false)
 
-  // ===== estados ORIGINALES (NO SE TOCAN)
   const [formData, setFormData] = useState({
     customerId: "",
     rentalDate: new Date().toISOString().split("T")[0],
-    returnDate: "",
     eventDate: "",
+    returnDate: "",
     deposit: "",
     notes: "",
   })
@@ -46,36 +45,59 @@ export function RentalsManagement({
 
   const [items, setItems] = useState<RentalItem[]>([])
 
-  // ===== FILTRADO + ORDEN
-  const filteredRentals = rentals
-    .filter(r => (showArchived ? r.archived : !r.archived))
-    .filter(
-      r =>
-        r.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.id.includes(searchTerm)
-    )
-    .sort((a, b) => {
-      if (a.status === "active" && b.status !== "active") return -1
-      if (a.status !== "active" && b.status === "active") return 1
-      if (a.status === "returned" && b.status !== "returned") return 1
-      if (a.status !== "returned" && b.status === "returned") return -1
-      return 0
-    })
+  // =============================
+  // NUEVA FUNCIÓN CLAVE
+  // =============================
+  const getAvailableStockForDates = (
+    product: Product,
+    start: string,
+    end: string
+  ) => {
+    const used = rentals.reduce((sum, rental) => {
+      if (
+        rental.status !== "returned" &&
+        rental.eventDate < end &&
+        rental.returnDate > start
+      ) {
+        const item = rental.items.find(i => i.productId === product.id)
+        return item ? sum + item.quantity : sum
+      }
+      return sum
+    }, 0)
 
-  // ===== FUNCIONES EXISTENTES (SIN CAMBIOS)
+    return product.totalStock - used
+  }
 
   const handleAddItem = () => {
     const product = products.find(p => p.id === itemForm.productId)
     if (!product) return
 
+    if (!formData.eventDate || !formData.returnDate) {
+      toast.error("Selecciona fechas de entrega y recolección")
+      return
+    }
+
+    const available = getAvailableStockForDates(
+      product,
+      formData.eventDate,
+      formData.returnDate
+    )
+
     const qty = Number(itemForm.quantity)
-    if (qty > product.availableStock) {
-      toast.error(`Solo hay ${product.availableStock} disponibles`)
+
+    if (qty > available) {
+      toast.error(`Solo hay ${available} disponibles para esas fechas`)
       return
     }
 
     const existing = items.find(i => i.productId === product.id)
+
     if (existing) {
+      if (existing.quantity + qty > available) {
+        toast.error(`Excede el stock disponible (${available})`)
+        return
+      }
+
       setItems(
         items.map(i =>
           i.productId === product.id
@@ -128,8 +150,8 @@ export function RentalsManagement({
       customerName: customer.name,
       items,
       rentalDate: formData.rentalDate,
-      returnDate: formData.returnDate,
       eventDate: formData.eventDate,
+      returnDate: formData.returnDate,
       status: "active",
       subtotal,
       discount,
@@ -140,18 +162,7 @@ export function RentalsManagement({
 
     onRentalsChange([...rentals, newRental])
 
-    onProductsChange(
-      products.map(p => {
-        const item = items.find(i => i.productId === p.id)
-        return item
-          ? {
-              ...p,
-              availableStock: p.availableStock - item.quantity,
-              rentedStock: p.rentedStock + item.quantity,
-            }
-          : p
-      })
-    )
+    // ❌ YA NO SE MODIFICA EL STOCK AQUÍ
 
     onCustomersChange(
       customers.map(c =>
@@ -173,23 +184,9 @@ export function RentalsManagement({
       )
     )
 
-    onProductsChange(
-      products.map(p => {
-        const item = rental.items.find(i => i.productId === p.id)
-        return item
-          ? {
-              ...p,
-              availableStock: p.availableStock + item.quantity,
-              rentedStock: p.rentedStock - item.quantity,
-            }
-          : p
-      })
-    )
-
     toast.success("Renta marcada como devuelta")
   }
 
-  // ===== NUEVA FUNCIÓN (ARCHIVAR)
   const handleArchive = (rental: Rental) => {
     onRentalsChange(
       rentals.map(r =>
@@ -199,70 +196,64 @@ export function RentalsManagement({
     toast.success("Renta archivada")
   }
 
-  // ===== UI
+  const filteredRentals = rentals
+    .filter(r => (showArchived ? r.archived : !r.archived))
+    .filter(
+      r =>
+        r.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.id.includes(searchTerm)
+    )
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl tracking-tight">Rentas</h2>
-          <p className="text-muted-foreground">
-            Gestión de pedidos y rentas
-          </p>
-        </div>
+        <h2 className="text-3xl">Rentas</h2>
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowArchived(!showArchived)}
-          >
-            <Archive className="h-4 w-4 mr-2" />
-            Rentas archivadas
-          </Button>
-
-          <RentalFormDialog
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            customers={customers}
-            products={products}
-            formData={formData}
-            setFormData={setFormData}
-            itemForm={itemForm}
-            setItemForm={setItemForm}
-            items={items}
-            onAddItem={handleAddItem}
-            onRemoveItem={handleRemoveItem}
-            onSubmit={handleSubmit}
-          />
-        </div>
-      </div>
-
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar rentas..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="pl-10"
+        <RentalFormDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          customers={customers}
+          products={products.map(p => ({
+            ...p,
+            availableStock:
+              formData.eventDate && formData.returnDate
+                ? getAvailableStockForDates(
+                    p,
+                    formData.eventDate,
+                    formData.returnDate
+                  )
+                : p.totalStock,
+          }))}
+          formData={formData}
+          setFormData={setFormData}
+          itemForm={itemForm}
+          setItemForm={setItemForm}
+          items={items}
+          onAddItem={handleAddItem}
+          onRemoveItem={handleRemoveItem}
+          onSubmit={handleSubmit}
         />
       </div>
 
-      <div className="space-y-4">
-        {filteredRentals.map(r => (
-          <RentalCard
-            key={r.id}
-            rental={r}
-            onReturn={handleReturn}
-            onArchive={handleArchive}
-          />
-        ))}
-      </div>
+      <Input
+        placeholder="Buscar rentas..."
+        value={searchTerm}
+        onChange={e => setSearchTerm(e.target.value)}
+      />
+
+      {filteredRentals.map(r => (
+        <RentalCard
+          key={r.id}
+          rental={r}
+          onReturn={handleReturn}
+          onArchive={handleArchive}
+        />
+      ))}
 
       {filteredRentals.length === 0 && (
         <div className="text-center py-12">
-          <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-          <h3 className="mt-4 text-lg">
-            No se encontraron rentas
-          </h3>
+          <FileText className="mx-auto h-12 w-12" />
+          <h3>No se encontraron rentas</h3>
         </div>
       )}
     </div>

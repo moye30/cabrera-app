@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react"
 
 /* ======================================================
-   TIPOS (MODELOS DE DATOS)
+   TIPOS
 ====================================================== */
 
 import {
@@ -17,7 +17,7 @@ import {
 } from "./types"
 
 /* ======================================================
-   SIMULACIÓN DE BACKEND (localStorage)
+   STORAGE (SIMULA BACKEND)
 ====================================================== */
 
 import {
@@ -32,7 +32,7 @@ import {
 } from "./utils/storage"
 
 /* ======================================================
-   VISTAS PRINCIPALES
+   VISTAS
 ====================================================== */
 
 import { Dashboard } from "./components/Dashboard"
@@ -40,9 +40,13 @@ import { ProductsManagement } from "./components/ProductsManagement"
 import { CustomersManagement } from "./components/CustomersManagement"
 import { RentalsManagement } from "./components/RentalsManagement"
 import { LossesManagement } from "./components/LossesManagement"
-
-/* 🆕 NUEVA VISTA DE REPORTES */
 import { MonthlyReport } from "./components/Reports/MonthlyReport"
+
+/* ======================================================
+   LOGIN
+====================================================== */
+
+import { Login } from "./components/Login"
 
 /* ======================================================
    UI + ICONOS
@@ -58,11 +62,12 @@ import {
   BarChart3,
   Menu,
   X,
+  LogOut,
 } from "lucide-react"
 import { Toaster } from "./components/ui/sonner"
 
 /* ======================================================
-   VISTAS DISPONIBLES (ENRUTADO MANUAL)
+   VISTAS DISPONIBLES
 ====================================================== */
 
 type ViewType =
@@ -74,10 +79,17 @@ type ViewType =
   | "reports"
 
 /* ======================================================
-   COMPONENTE PRINCIPAL
+   APP
 ====================================================== */
 
 export default function App() {
+  /* =======================
+     AUTH
+  ======================= */
+
+  const [isAuthenticated, setIsAuthenticated] =
+    useState(false)
+
   /* =======================
      ESTADO GLOBAL
   ======================= */
@@ -94,15 +106,27 @@ export default function App() {
     useState(false)
 
   /* =======================
-     CARGA INICIAL
+     CHECK LOGIN AL CARGAR
   ======================= */
 
   useEffect(() => {
+    const auth =
+      localStorage.getItem("isAuthenticated") === "true"
+    setIsAuthenticated(auth)
+  }, [])
+
+  /* =======================
+     CARGA INICIAL DATOS
+  ======================= */
+
+  useEffect(() => {
+    if (!isAuthenticated) return
+
     setProducts(getProducts())
     setCustomers(getCustomers())
     setRentals(getRentals())
     setLosses(getLosses())
-  }, [])
+  }, [isAuthenticated])
 
   /* =======================
      PERSISTENCIA
@@ -125,7 +149,7 @@ export default function App() {
   }, [losses])
 
   /* =======================
-     ESTADÍSTICAS DASHBOARD
+     ESTADÍSTICAS
   ======================= */
 
   const stats: DashboardStats = useMemo(() => {
@@ -189,7 +213,28 @@ export default function App() {
   }, [products, customers, rentals, losses])
 
   /* =======================
-     MENÚ LATERAL
+     SI NO ESTÁ LOGEADO → LOGIN
+  ======================= */
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Login
+          onLogin={() => {
+            localStorage.setItem(
+              "isAuthenticated",
+              "true"
+            )
+            setIsAuthenticated(true)
+          }}
+        />
+        <Toaster />
+      </>
+    )
+  }
+
+  /* =======================
+     MENÚ
   ======================= */
 
   const menuItems = [
@@ -202,7 +247,7 @@ export default function App() {
   ] as const
 
   /* =======================
-     RENDER
+     RENDER APP
   ======================= */
 
   return (
@@ -236,8 +281,18 @@ export default function App() {
             </h1>
           </div>
 
-          <div className="ml-auto text-sm text-muted-foreground hidden sm:block">
-            Sistema de gestión de pedidos e inventario
+          <div className="ml-auto flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                localStorage.removeItem("isAuthenticated")
+                setIsAuthenticated(false)
+              }}
+            >
+              <LogOut className="h-4 w-4 mr-1" />
+              Cerrar sesión
+            </Button>
           </div>
         </div>
       </header>
@@ -321,7 +376,6 @@ export default function App() {
               />
             )}
 
-            {/* 🆕 REPORTES */}
             {currentView === "reports" && (
               <MonthlyReport
                 rentals={rentals}
@@ -332,7 +386,6 @@ export default function App() {
         </main>
       </div>
 
-      {/* OVERLAY MÓVIL */}
       {mobileMenuOpen && (
         <div
           className="fixed inset-0 bg-background/80 z-30 md:hidden"
