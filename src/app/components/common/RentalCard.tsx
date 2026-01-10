@@ -8,25 +8,29 @@ import {
 import { Button } from "@/app/components/ui/button"
 import { Badge } from "@/app/components/ui/badge"
 import {
-  Archive,
-  CheckCircle,
   FileText,
+  Pencil,
+  Trash2,
+  ClipboardCheck,
 } from "lucide-react"
 import { generateInvoicePDF } from "@/app/utils/pdf"
 
 interface RentalCardProps {
   rental: Rental
-  onReturn: (rental: Rental) => void
-  onArchive: (rental: Rental) => void
+  onEdit: (rental: Rental) => void
+  onDelete: (rental: Rental) => void
+  onConfirm: (rental: Rental) => void
 }
 
 export function RentalCard({
   rental,
-  onReturn,
-  onArchive,
+  onEdit,
+  onDelete,
+  onConfirm,
 }: RentalCardProps) {
   return (
     <Card className="overflow-hidden">
+      {/* HEADER */}
       <CardHeader className="flex flex-row justify-between items-start gap-4">
         <div className="space-y-1">
           <CardTitle>{rental.customerName}</CardTitle>
@@ -35,55 +39,38 @@ export function RentalCard({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => generateInvoicePDF(rental)}
-          >
-            <FileText className="h-4 w-4 mr-1" />
-            PDF
-          </Button>
-
-          {rental.status !== "returned" && (
-            <Button
-              size="sm"
-              onClick={() => onReturn(rental)}
-            >
-              <CheckCircle className="h-4 w-4 mr-1" />
-              Marcar devuelta
-            </Button>
-          )}
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onArchive(rental)}
-          >
-            <Archive className="h-4 w-4 mr-1" />
-            Archivar
-          </Button>
-        </div>
+        <Badge variant="default">
+          {rental.status}
+        </Badge>
       </CardHeader>
 
+      {/* CONTENIDO */}
       <CardContent className="space-y-4">
+        {/* FECHAS */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">Fecha de cotizacion</p>
+            <p className="text-muted-foreground">
+              Fecha de cotización
+            </p>
             <p>{rental.rentalDate}</p>
           </div>
 
           <div>
-            <p className="text-muted-foreground">Fecha de entrega</p>
+            <p className="text-muted-foreground">
+              Fecha de entrega
+            </p>
             <p>{rental.eventDate || "—"}</p>
           </div>
 
           <div>
-            <p className="text-muted-foreground">Fecha de recoleccion</p>
+            <p className="text-muted-foreground">
+              Fecha de recolección
+            </p>
             <p>{rental.returnDate || "—"}</p>
           </div>
         </div>
 
+        {/* ITEMS */}
         <div className="border rounded-md">
           <div className="grid grid-cols-3 gap-2 px-3 py-2 text-xs font-semibold bg-muted">
             <span>Producto</span>
@@ -91,7 +78,7 @@ export function RentalCard({
             <span>Subtotal</span>
           </div>
 
-          {rental.items.map((item) => (
+          {rental.items.map(item => (
             <div
               key={item.productId}
               className="grid grid-cols-3 gap-2 px-3 py-2 text-sm border-t"
@@ -103,6 +90,7 @@ export function RentalCard({
           ))}
         </div>
 
+        {/* TOTALES */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Subtotal</p>
@@ -114,39 +102,59 @@ export function RentalCard({
             <p>${rental.discount.toFixed(2)}</p>
           </div>
 
-          <div>
-            <p className="text-muted-foreground">Depósito</p>
-            <p>${rental.deposit.toFixed(2)}</p>
-          </div>
-
-          <div>
-            <p className="text-muted-foreground font-semibold">Total</p>
+          <div className="md:col-span-2">
+            <p className="text-muted-foreground font-semibold">
+              Total
+            </p>
             <p className="font-semibold">
               ${rental.total.toFixed(2)}
             </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <Badge
-            variant={
-              rental.status === "active"
-                ? "default"
-                : rental.status === "returned"
-                ? "secondary"
-                : rental.status === "overdue"
-                ? "destructive"
-                : "outline"
-            }
-          >
-            {rental.status}
-          </Badge>
+        {/* NOTAS */}
+        {rental.notes && (
+          <p className="text-sm text-muted-foreground">
+            <strong>Notas:</strong> {rental.notes}
+          </p>
+        )}
 
-          {rental.notes && (
-            <p className="text-sm text-muted-foreground">
-              <strong>Notas:</strong> {rental.notes}
-            </p>
-          )}
+        {/* ACCIONES */}
+        <div className="flex flex-wrap justify-end gap-2 pt-4 border-t">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => generateInvoicePDF(rental)}
+          >
+            <FileText className="h-4 w-4 mr-1" />
+            PDF
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onEdit(rental)}
+          >
+            <Pencil className="h-4 w-4 mr-1" />
+            Editar
+          </Button>
+
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => onDelete(rental)}
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            Eliminar
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={() => onConfirm(rental)}
+          >
+            <ClipboardCheck className="h-4 w-4 mr-1" />
+            Confirmar pedido
+          </Button>
         </div>
       </CardContent>
     </Card>
