@@ -87,8 +87,8 @@ export default function App() {
      AUTH
   ======================= */
 
-  const [isAuthenticated, setIsAuthenticated] =
-    useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false) // 🔑 CLAVE
 
   /* =======================
      ESTADO GLOBAL
@@ -106,17 +106,19 @@ export default function App() {
     useState(false)
 
   /* =======================
-     CHECK LOGIN AL CARGAR
+     CHECK LOGIN (BLOQUEANTE)
   ======================= */
 
   useEffect(() => {
     const auth =
       localStorage.getItem("isAuthenticated") === "true"
+
     setIsAuthenticated(auth)
+    setAuthChecked(true) // 👈 ya podemos renderizar
   }, [])
 
   /* =======================
-     CARGA INICIAL DATOS
+     CARGA DE DATOS (SOLO LOGEADO)
   ======================= */
 
   useEffect(() => {
@@ -133,11 +135,11 @@ export default function App() {
   ======================= */
 
   useEffect(() => {
-    if (products.length > 0) saveProducts(products)
+    if (products.length) saveProducts(products)
   }, [products])
 
   useEffect(() => {
-    if (customers.length > 0) saveCustomers(customers)
+    if (customers.length) saveCustomers(customers)
   }, [customers])
 
   useEffect(() => {
@@ -154,7 +156,7 @@ export default function App() {
 
   const stats: DashboardStats = useMemo(() => {
     const returnedRentals = rentals.filter(
-      (r) => r.status === "returned"
+      r => r.status === "returned"
     )
 
     const totalRevenue = returnedRentals.reduce(
@@ -163,7 +165,7 @@ export default function App() {
     )
 
     const activeRentals = rentals.filter(
-      (r) => r.status === "active"
+      r => r.status === "active"
     ).length
 
     const inventoryValue = products.reduce(
@@ -190,7 +192,7 @@ export default function App() {
 
     const monthlyRevenue = returnedRentals
       .filter(
-        (r) =>
+        r =>
           new Date(r.rentalDate).getMonth() ===
           currentMonth
       )
@@ -213,7 +215,15 @@ export default function App() {
   }, [products, customers, rentals, losses])
 
   /* =======================
-     SI NO ESTÁ LOGEADO → LOGIN
+     ESPERA A VALIDAR AUTH
+  ======================= */
+
+  if (!authChecked) {
+    return null // o spinner si quieres
+  }
+
+  /* =======================
+     LOGIN O APP
   ======================= */
 
   if (!isAuthenticated) {
@@ -221,10 +231,7 @@ export default function App() {
       <>
         <Login
           onLogin={() => {
-            localStorage.setItem(
-              "isAuthenticated",
-              "true"
-            )
+            localStorage.setItem("isAuthenticated", "true")
             setIsAuthenticated(true)
           }}
         />
@@ -263,37 +270,32 @@ export default function App() {
               setMobileMenuOpen(!mobileMenuOpen)
             }
           >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
+            {mobileMenuOpen ? <X /> : <Menu />}
           </Button>
 
           <div className="flex items-center gap-2">
             <img
               src="/logoCabrera.jpeg"
               alt="Cabrera Mobiliaria"
-              className="h-12 w-auto"
+              className="h-12"
             />
             <h1 className="text-xl font-semibold">
               Cabrera Mobiliaria
             </h1>
           </div>
 
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                localStorage.removeItem("isAuthenticated")
-                setIsAuthenticated(false)
-              }}
-            >
-              <LogOut className="h-4 w-4 mr-1" />
-              Cerrar sesión
-            </Button>
-          </div>
+          <Button
+            className="ml-auto"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              localStorage.removeItem("isAuthenticated")
+              setIsAuthenticated(false)
+            }}
+          >
+            <LogOut className="h-4 w-4 mr-1" />
+            Cerrar sesión
+          </Button>
         </div>
       </header>
 
@@ -311,9 +313,7 @@ export default function App() {
               <Button
                 key={id}
                 variant={
-                  currentView === id
-                    ? "secondary"
-                    : "ghost"
+                  currentView === id ? "secondary" : "ghost"
                 }
                 className="justify-start"
                 onClick={() => {
@@ -323,12 +323,6 @@ export default function App() {
               >
                 <Icon className="mr-2 h-4 w-4" />
                 {label}
-                {id === "rentals" &&
-                  stats.activeRentals > 0 && (
-                    <span className="ml-auto bg-primary text-primary-foreground rounded-full px-2 text-xs">
-                      {stats.activeRentals}
-                    </span>
-                  )}
               </Button>
             ))}
           </nav>
@@ -385,13 +379,6 @@ export default function App() {
           </div>
         </main>
       </div>
-
-      {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-background/80 z-30 md:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
 
       <Toaster />
     </div>
