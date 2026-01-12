@@ -63,6 +63,8 @@ import {
   Menu,
   X,
   LogOut,
+  FileText,
+  CheckCircle,
 } from "lucide-react"
 import { Toaster } from "./components/ui/sonner"
 
@@ -74,7 +76,8 @@ type ViewType =
   | "dashboard"
   | "products"
   | "customers"
-  | "rentals"
+  | "quotations"
+  | "confirmedOrders"
   | "losses"
   | "reports"
 
@@ -87,17 +90,23 @@ export default function App() {
      AUTH
   ======================= */
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [authChecked, setAuthChecked] = useState(false) // 🔑 CLAVE
+  const [isAuthenticated, setIsAuthenticated] =
+    useState(false)
+  const [authChecked, setAuthChecked] =
+    useState(false)
 
   /* =======================
      ESTADO GLOBAL
   ======================= */
 
-  const [products, setProducts] = useState<Product[]>([])
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [rentals, setRentals] = useState<Rental[]>([])
-  const [losses, setLosses] = useState<Loss[]>([])
+  const [products, setProducts] =
+    useState<Product[]>([])
+  const [customers, setCustomers] =
+    useState<Customer[]>([])
+  const [rentals, setRentals] =
+    useState<Rental[]>([])
+  const [losses, setLosses] =
+    useState<Loss[]>([])
 
   const [currentView, setCurrentView] =
     useState<ViewType>("dashboard")
@@ -105,25 +114,26 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] =
     useState(false)
 
+  const [rentalsMenuOpen, setRentalsMenuOpen] =
+    useState(false)
+
   /* =======================
-     CHECK LOGIN (BLOQUEANTE)
+     CHECK LOGIN
   ======================= */
 
   useEffect(() => {
     const auth =
       localStorage.getItem("isAuthenticated") === "true"
-
     setIsAuthenticated(auth)
-    setAuthChecked(true) // 👈 ya podemos renderizar
+    setAuthChecked(true)
   }, [])
 
   /* =======================
-     CARGA DE DATOS (SOLO LOGEADO)
+     CARGA DE DATOS
   ======================= */
 
   useEffect(() => {
     if (!isAuthenticated) return
-
     setProducts(getProducts())
     setCustomers(getCustomers())
     setRentals(getRentals())
@@ -215,15 +225,13 @@ export default function App() {
   }, [products, customers, rentals, losses])
 
   /* =======================
-     ESPERA A VALIDAR AUTH
+     ESPERA AUTH
   ======================= */
 
-  if (!authChecked) {
-    return null // o spinner si quieres
-  }
+  if (!authChecked) return null
 
   /* =======================
-     LOGIN O APP
+     LOGIN
   ======================= */
 
   if (!isAuthenticated) {
@@ -241,20 +249,7 @@ export default function App() {
   }
 
   /* =======================
-     MENÚ
-  ======================= */
-
-  const menuItems = [
-    { id: "dashboard", label: "Inicio", icon: LayoutDashboard },
-    { id: "products", label: "Inventario", icon: Package },
-    { id: "customers", label: "Clientes", icon: Users },
-    { id: "rentals", label: "Rentas", icon: Calendar },
-    { id: "losses", label: "Pérdidas", icon: AlertTriangle },
-    { id: "reports", label: "Reportes", icon: BarChart3 },
-  ] as const
-
-  /* =======================
-     RENDER APP
+     RENDER
   ======================= */
 
   return (
@@ -266,9 +261,7 @@ export default function App() {
             variant="ghost"
             size="icon"
             className="md:hidden"
-            onClick={() =>
-              setMobileMenuOpen(!mobileMenuOpen)
-            }
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X /> : <Menu />}
           </Button>
@@ -309,22 +302,91 @@ export default function App() {
           }`}
         >
           <nav className="flex flex-col gap-1 p-4">
-            {menuItems.map(({ id, label, icon: Icon }) => (
-              <Button
-                key={id}
-                variant={
-                  currentView === id ? "secondary" : "ghost"
-                }
-                className="justify-start"
-                onClick={() => {
-                  setCurrentView(id)
-                  setMobileMenuOpen(false)
-                }}
-              >
-                <Icon className="mr-2 h-4 w-4" />
-                {label}
-              </Button>
-            ))}
+            {/* MENU PRINCIPAL */}
+            <Button
+              variant={currentView === "dashboard" ? "secondary" : "ghost"}
+              className="justify-start"
+              onClick={() => setCurrentView("dashboard")}
+            >
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Inicio
+            </Button>
+
+            <Button
+              variant={currentView === "products" ? "secondary" : "ghost"}
+              className="justify-start"
+              onClick={() => setCurrentView("products")}
+            >
+              <Package className="mr-2 h-4 w-4" />
+              Inventario
+            </Button>
+
+            <Button
+              variant={currentView === "customers" ? "secondary" : "ghost"}
+              className="justify-start"
+              onClick={() => setCurrentView("customers")}
+            >
+              <Users className="mr-2 h-4 w-4" />
+              Clientes
+            </Button>
+
+            {/* RENTAS DESPLEGABLE */}
+            <Button
+              variant={
+                currentView === "quotations" ||
+                currentView === "confirmedOrders"
+                  ? "secondary"
+                  : "ghost"
+              }
+              className="justify-start"
+              onClick={() => setRentalsMenuOpen(!rentalsMenuOpen)}
+            >
+              <Calendar className="mr-2 h-4 w-4" />
+              Rentas
+            </Button>
+
+            {rentalsMenuOpen && (
+              <div className="ml-6 flex flex-col gap-1">
+                <Button
+                  variant={currentView === "quotations" ? "secondary" : "ghost"}
+                  className="justify-start text-sm"
+                  onClick={() => setCurrentView("quotations")}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Cotizaciones
+                </Button>
+
+                <Button
+                  variant={
+                    currentView === "confirmedOrders" ? "secondary" : "ghost"
+                  }
+                  className="justify-start text-sm"
+                  onClick={() => setCurrentView("confirmedOrders")}
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Pedidos confirmados
+                </Button>
+              </div>
+            )}
+
+            {/* PÉRDIDAS */}
+            <Button
+              variant={currentView === "losses" ? "secondary" : "ghost"}
+              className="justify-start"
+              onClick={() => setCurrentView("losses")}
+            >
+              <AlertTriangle className="mr-2 h-4 w-4" />
+              Pérdidas
+            </Button>
+
+            <Button
+              variant={currentView === "reports" ? "secondary" : "ghost"}
+              className="justify-start"
+              onClick={() => setCurrentView("reports")}
+            >
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Reportes
+            </Button>
           </nav>
         </aside>
 
@@ -349,7 +411,7 @@ export default function App() {
               />
             )}
 
-            {currentView === "rentals" && (
+            {currentView === "quotations" && (
               <RentalsManagement
                 rentals={rentals}
                 products={products}
@@ -358,6 +420,17 @@ export default function App() {
                 onProductsChange={setProducts}
                 onCustomersChange={setCustomers}
               />
+            )}
+
+            {currentView === "confirmedOrders" && (
+              <div className="text-center py-20">
+                <h2 className="text-2xl font-semibold">
+                  Pedidos confirmados
+                </h2>
+                <p className="text-muted-foreground">
+                  Módulo en construcción
+                </p>
+              </div>
             )}
 
             {currentView === "losses" && (

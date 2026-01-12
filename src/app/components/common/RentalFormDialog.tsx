@@ -19,6 +19,7 @@ import {
 import { Plus } from "lucide-react"
 import { Textarea } from "@/app/components/ui/textarea"
 import { RentalItemsTable } from "./RentalItemsTable"
+import { useEffect } from "react"
 
 interface RentalFormDialogProps {
   open: boolean
@@ -49,6 +50,20 @@ export function RentalFormDialog({
   onRemoveItem,
   onSubmit,
 }: RentalFormDialogProps) {
+
+  /* ======================================
+     FECHA DE COTIZACIÓN AUTOMÁTICA
+  ====================================== */
+  useEffect(() => {
+    if (open && !formData.rentalDate) {
+      const today = new Date().toISOString().split("T")[0]
+      setFormData({
+        ...formData,
+        rentalDate: today,
+      })
+    }
+  }, [open])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -64,6 +79,7 @@ export function RentalFormDialog({
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-4">
+          {/* CLIENTE Y FECHAS */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Cliente</Label>
@@ -86,40 +102,38 @@ export function RentalFormDialog({
               </Select>
             </div>
 
-            <div>
-              <Label>Fecha de cotizacion</Label>
-              <Input
-                type="date"
-                value={formData.rentalDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, rentalDate: e.target.value })
-                }
-              />
-            </div>
-
+            {/* FECHA DE ENTREGA */}
             <div>
               <Label>Fecha de entrega</Label>
               <Input
                 type="date"
                 value={formData.eventDate}
                 onChange={(e) =>
-                  setFormData({ ...formData, eventDate: e.target.value })
+                  setFormData({
+                    ...formData,
+                    eventDate: e.target.value,
+                  })
                 }
               />
             </div>
 
+            {/* FECHA DE RECOLECCIÓN */}
             <div>
-              <Label>Fecha de recoleccion</Label>
+              <Label>Fecha de recolección</Label>
               <Input
                 type="date"
                 value={formData.returnDate}
                 onChange={(e) =>
-                  setFormData({ ...formData, returnDate: e.target.value })
+                  setFormData({
+                    ...formData,
+                    returnDate: e.target.value,
+                  })
                 }
               />
             </div>
           </div>
 
+          {/* ARTÍCULOS */}
           <div>
             <Label>Artículos</Label>
             <div className="flex gap-2 mt-2">
@@ -150,7 +164,10 @@ export function RentalFormDialog({
                 className="w-32"
                 value={itemForm.quantity}
                 onChange={(e) =>
-                  setItemForm({ ...itemForm, quantity: e.target.value })
+                  setItemForm({
+                    ...itemForm,
+                    quantity: e.target.value,
+                  })
                 }
               />
 
@@ -167,30 +184,22 @@ export function RentalFormDialog({
             />
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Depósito</Label>
-              <Input
-                type="number"
-                value={formData.deposit}
-                onChange={(e) =>
-                  setFormData({ ...formData, deposit: e.target.value })
-                }
-              />
-            </div>
-
-            <div>
-              <Label>Notas</Label>
-              <Textarea
-                rows={2}
-                value={formData.notes}
-                onChange={(e) =>
-                  setFormData({ ...formData, notes: e.target.value })
-                }
-              />
-            </div>
+          {/* NOTAS */}
+          <div>
+            <Label>Notas</Label>
+            <Textarea
+              rows={2}
+              value={formData.notes}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  notes: e.target.value,
+                })
+              }
+            />
           </div>
 
+          {/* ACCIONES */}
           <div className="flex justify-end gap-2">
             <Button
               type="button"
