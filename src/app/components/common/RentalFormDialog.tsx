@@ -69,13 +69,13 @@ export function RentalFormDialog({
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Nueva Renta
+          Nueva cotizacion
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nueva Renta</DialogTitle>
+          <DialogTitle>Nueva cotizacion</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-4">
@@ -208,7 +208,7 @@ export function RentalFormDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit">Crear Renta</Button>
+            <Button type="submit">Crear cotizacion</Button>
           </div>
         </form>
       </DialogContent>
