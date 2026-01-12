@@ -15,6 +15,16 @@ import {
 } from "lucide-react"
 import { generateInvoicePDF } from "@/app/utils/pdf"
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/app/components/ui/dialog"
+
 interface RentalCardProps {
   rental: Rental
   onEdit: (rental: Rental) => void
@@ -39,9 +49,7 @@ export function RentalCard({
           </p>
         </div>
 
-        <Badge variant="default">
-          {rental.status}
-        </Badge>
+        <Badge variant="default">{rental.status}</Badge>
       </CardHeader>
 
       {/* CONTENIDO */}
@@ -139,19 +147,42 @@ export function RentalCard({
             Editar
           </Button>
 
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(rental)}
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Eliminar
-          </Button>
+          {/* CONFIRMACIÓN DE ELIMINACIÓN */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="destructive" size="sm">
+                <Trash2 className="h-4 w-4 mr-1" />
+                Eliminar
+              </Button>
+            </DialogTrigger>
 
-          <Button
-            size="sm"
-            onClick={() => onConfirm(rental)}
-          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  ¿Eliminar cotización?
+                </DialogTitle>
+                <DialogDescription>
+                  Esta acción no se puede deshacer.  
+                  Se eliminará la cotización del cliente{" "}
+                  <strong>{rental.customerName}</strong>.
+                </DialogDescription>
+              </DialogHeader>
+
+              <DialogFooter className="gap-2">
+                <Button variant="outline">
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => onDelete(rental)}
+                >
+                  Sí, eliminar
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Button size="sm" onClick={() => onConfirm(rental)}>
             <ClipboardCheck className="h-4 w-4 mr-1" />
             Confirmar pedido
           </Button>

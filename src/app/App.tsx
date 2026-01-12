@@ -39,6 +39,7 @@ import { Dashboard } from "./components/Dashboard"
 import { ProductsManagement } from "./components/ProductsManagement"
 import { CustomersManagement } from "./components/CustomersManagement"
 import { RentalsManagement } from "./components/RentalsManagement"
+import { ConfirmedOrdersManagement } from "./components/ConfirmedOrdersManagement"
 import { LossesManagement } from "./components/LossesManagement"
 import { MonthlyReport } from "./components/Reports/MonthlyReport"
 
@@ -90,32 +91,23 @@ export default function App() {
      AUTH
   ======================= */
 
-  const [isAuthenticated, setIsAuthenticated] =
-    useState(false)
-  const [authChecked, setAuthChecked] =
-    useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
 
   /* =======================
      ESTADO GLOBAL
   ======================= */
 
-  const [products, setProducts] =
-    useState<Product[]>([])
-  const [customers, setCustomers] =
-    useState<Customer[]>([])
-  const [rentals, setRentals] =
-    useState<Rental[]>([])
-  const [losses, setLosses] =
-    useState<Loss[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [rentals, setRentals] = useState<Rental[]>([])
+  const [losses, setLosses] = useState<Loss[]>([])
 
   const [currentView, setCurrentView] =
     useState<ViewType>("dashboard")
 
-  const [mobileMenuOpen, setMobileMenuOpen] =
-    useState(false)
-
-  const [rentalsMenuOpen, setRentalsMenuOpen] =
-    useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [rentalsMenuOpen, setRentalsMenuOpen] = useState(false)
 
   /* =======================
      CHECK LOGIN
@@ -302,7 +294,6 @@ export default function App() {
           }`}
         >
           <nav className="flex flex-col gap-1 p-4">
-            {/* MENU PRINCIPAL */}
             <Button
               variant={currentView === "dashboard" ? "secondary" : "ghost"}
               className="justify-start"
@@ -330,7 +321,7 @@ export default function App() {
               Clientes
             </Button>
 
-            {/* RENTAS DESPLEGABLE */}
+            {/* RENTAS */}
             <Button
               variant={
                 currentView === "quotations" ||
@@ -358,10 +349,14 @@ export default function App() {
 
                 <Button
                   variant={
-                    currentView === "confirmedOrders" ? "secondary" : "ghost"
+                    currentView === "confirmedOrders"
+                      ? "secondary"
+                      : "ghost"
                   }
                   className="justify-start text-sm"
-                  onClick={() => setCurrentView("confirmedOrders")}
+                  onClick={() =>
+                    setCurrentView("confirmedOrders")
+                  }
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Pedidos confirmados
@@ -369,7 +364,6 @@ export default function App() {
               </div>
             )}
 
-            {/* PÉRDIDAS */}
             <Button
               variant={currentView === "losses" ? "secondary" : "ghost"}
               className="justify-start"
@@ -417,20 +411,11 @@ export default function App() {
                 products={products}
                 customers={customers}
                 onRentalsChange={setRentals}
-                onProductsChange={setProducts}
-                onCustomersChange={setCustomers}
               />
             )}
 
             {currentView === "confirmedOrders" && (
-              <div className="text-center py-20">
-                <h2 className="text-2xl font-semibold">
-                  Pedidos confirmados
-                </h2>
-                <p className="text-muted-foreground">
-                  Módulo en construcción
-                </p>
-              </div>
+              <ConfirmedOrdersManagement rentals={rentals} />
             )}
 
             {currentView === "losses" && (

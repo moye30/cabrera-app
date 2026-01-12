@@ -1,20 +1,18 @@
 import { useState } from "react"
 import { Rental, Product, Customer, RentalItem } from "../types"
 import { Input } from "./ui/input"
-import { Button } from "./ui/button"
-import { Search, FileText, Archive } from "lucide-react"
+import { FileText } from "lucide-react"
 import { toast } from "sonner"
 
 import { RentalFormDialog } from "./common/RentalFormDialog"
 import { RentalCard } from "./common/RentalCard"
+import { ConfirmDialog } from "./common/ConfirmDialog"
 
 interface RentalsManagementProps {
   rentals: Rental[]
   products: Product[]
   customers: Customer[]
   onRentalsChange: (rentals: Rental[]) => void
-  onProductsChange: (products: Product[]) => void
-  onCustomersChange: (customers: Customer[]) => void
 }
 
 export function RentalsManagement({
@@ -22,22 +20,26 @@ export function RentalsManagement({
   products,
   customers,
   onRentalsChange,
-  onProductsChange,
-  onCustomersChange,
 }: RentalsManagementProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [showArchived, setShowArchived] = useState(false)
+  const [editingRental, setEditingRental] =
+    useState<Rental | null>(null)
+
+  /* 🔔 CONFIRMAR PEDIDO */
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [rentalToConfirm, setRentalToConfirm] =
+    useState<Rental | null>(null)
 
   const [formData, setFormData] = useState({
     customerId: "",
-    rentalDate: new Date().toISOString().split("T")[0],
+    rentalDate: "",
     eventDate: "",
     returnDate: "",
-    deposit: "",
     notes: "",
   })
 
+  /* 🔁 ESTO ES LO QUE SE HABÍA ROTO */
   const [itemForm, setItemForm] = useState({
     productId: "",
     quantity: "",
@@ -45,63 +47,35 @@ export function RentalsManagement({
 
   const [items, setItems] = useState<RentalItem[]>([])
 
-  const getAvailableStockForDates = (
-    product: Product,
-    start: string,
-    end: string
-  ) => {
-    const used = rentals.reduce((sum, rental) => {
-      if (
-        rental.status !== "returned" &&
-        rental.eventDate < end &&
-        rental.returnDate > start
-      ) {
-        const item = rental.items.find(i => i.productId === product.id)
-        return item ? sum + item.quantity : sum
-      }
-      return sum
-    }, 0)
-
-    return product.totalStock - used
-  }
+  /* =====================
+     AGREGAR PRODUCTO
+  ===================== */
 
   const handleAddItem = () => {
-    const product = products.find(p => p.id === itemForm.productId)
+    const product = products.find(
+      p => p.id === itemForm.productId
+    )
     if (!product) return
 
-    if (!formData.eventDate || !formData.returnDate) {
-      toast.error("Selecciona fechas de entrega y recolección")
+    const qty = Number(itemForm.quantity)
+    if (!qty || qty <= 0) {
+      toast.error("Cantidad inválida")
       return
     }
 
-    const available = getAvailableStockForDates(
-      product,
-      formData.eventDate,
-      formData.returnDate
+    const existing = items.find(
+      i => i.productId === product.id
     )
 
-    const qty = Number(itemForm.quantity)
-
-    if (qty > available) {
-      toast.error(`Solo hay ${available} disponibles para esas fechas`)
-      return
-    }
-
-    const existing = items.find(i => i.productId === product.id)
-
     if (existing) {
-      if (existing.quantity + qty > available) {
-        toast.error(`Excede el stock disponible (${available})`)
-        return
-      }
-
       setItems(
         items.map(i =>
           i.productId === product.id
             ? {
                 ...i,
                 quantity: i.quantity + qty,
-                subtotal: (i.quantity + qty) * i.unitPrice,
+                subtotal:
+                  (i.quantity + qty) * i.unitPrice,
               }
             : i
         )
@@ -126,100 +100,148 @@ export function RentalsManagement({
     setItems(items.filter(i => i.productId !== id))
   }
 
+  /* =====================
+     CREAR / EDITAR
+  ===================== */
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (items.length === 0) {
+    if (!items.length) {
       toast.error("Agrega al menos un artículo")
       return
     }
 
-    const customer = customers.find(c => c.id === formData.customerId)
+    const customer = customers.find(
+      c => c.id === formData.customerId
+    )
     if (!customer) return
 
-    const subtotal = items.reduce((s, i) => s + i.subtotal, 0)
-    const discount = subtotal * (customer.discountPercentage / 100)
+    const subtotal = items.reduce(
+      (s, i) => s + i.subtotal,
+      0
+    )
+    const discount =
+      subtotal * (customer.discountPercentage / 100)
     const total = subtotal - discount
 
-    const newRental: Rental = {
-      id: `R${Date.now()}`,
-      customerId: customer.id,
-      customerName: customer.name,
-      items,
-      rentalDate: formData.rentalDate,
-      eventDate: formData.eventDate,
-      returnDate: formData.returnDate,
-      status: "active",
-      subtotal,
-      discount,
-      total,
-      deposit: Number(formData.deposit) || 0,
-      notes: formData.notes,
+    if (editingRental) {
+      onRentalsChange(
+        rentals.map(r =>
+          r.id === editingRental.id
+            ? {
+                ...r,
+                items,
+                eventDate: formData.eventDate,
+                returnDate: formData.returnDate,
+                notes: formData.notes,
+                subtotal,
+                discount,
+                total,
+              }
+            : r
+        )
+      )
+      toast.success("Cotización actualizada")
+    } else {
+     onRentalsChange([
+          ...rentals,
+          {
+            id: `C${Date.now()}`,
+            customerId: customer.id,
+            customerName: customer.name,
+
+            rentalDate: new Date()
+              .toISOString()
+              .split("T")[0],
+
+            deliveryDate: formData.eventDate, 
+            eventDate: formData.eventDate,
+            returnDate: formData.returnDate,
+
+            status: "pending",
+            items,
+            subtotal,
+            discount,
+            total,
+            deposit: 0,
+            notes: formData.notes,
+          },
+        ])
+
+      toast.success("Cotización creada")
     }
 
-    onRentalsChange([...rentals, newRental])
-
-
-    onCustomersChange(
-      customers.map(c =>
-        c.id === customer.id
-          ? { ...c, totalOrders: c.totalOrders + 1 }
-          : c
-      )
-    )
-
-    toast.success("Renta creada correctamente")
     setIsDialogOpen(false)
+    setEditingRental(null)
     setItems([])
   }
 
-  const handleReturn = (rental: Rental) => {
+  /* =====================
+     ACCIONES
+  ===================== */
+
+  const handleEdit = (rental: Rental) => {
+    setEditingRental(rental)
+    setFormData({
+      customerId: rental.customerId,
+      rentalDate: rental.rentalDate,
+      eventDate: rental.eventDate,
+      returnDate: rental.returnDate,
+      notes: rental.notes,
+    })
+    setItems(rental.items)
+    setIsDialogOpen(true)
+  }
+
+  const handleDelete = (rental: Rental) => {
+    onRentalsChange(
+      rentals.filter(r => r.id !== rental.id)
+    )
+    toast.success("Cotización eliminada")
+  }
+
+  const handleConfirmClick = (rental: Rental) => {
+    setRentalToConfirm(rental)
+    setConfirmOpen(true)
+  }
+
+  const handleConfirmOrder = () => {
+    if (!rentalToConfirm) return
+
     onRentalsChange(
       rentals.map(r =>
-        r.id === rental.id ? { ...r, status: "returned" } : r
+        r.id === rentalToConfirm.id
+          ? { ...r, status: "active" }
+          : r
       )
     )
 
-    toast.success("Renta marcada como devuelta")
+    toast.success("Pedido confirmado")
+    setConfirmOpen(false)
+    setRentalToConfirm(null)
   }
 
-  const handleArchive = (rental: Rental) => {
-    onRentalsChange(
-      rentals.map(r =>
-        r.id === rental.id ? { ...r, archived: true } : r
-      )
-    )
-    toast.success("Renta archivada")
-  }
-
-  const filteredRentals = rentals
-    .filter(r => (showArchived ? r.archived : !r.archived))
+  const filtered = rentals
+    .filter(r => r.status === "pending")
     .filter(
       r =>
-        r.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.customerName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         r.id.includes(searchTerm)
     )
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl">Rentas</h2>
+      <div className="flex justify-between">
+        <h2 className="text-3xl">Cotizaciones</h2>
 
         <RentalFormDialog
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           customers={customers}
-          products={products.map(p => ({
-            ...p,
-            availableStock:
-              formData.eventDate && formData.returnDate
-                ? getAvailableStockForDates(
-                    p,
-                    formData.eventDate,
-                    formData.returnDate
-                  )
-                : p.totalStock,
-          }))}
+          products={products}
           formData={formData}
           setFormData={setFormData}
           itemForm={itemForm}
@@ -232,26 +254,37 @@ export function RentalsManagement({
       </div>
 
       <Input
-        placeholder="Buscar rentas..."
+        placeholder="Buscar cotizaciones..."
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
       />
 
-      {filteredRentals.map(r => (
+      {filtered.map(r => (
         <RentalCard
           key={r.id}
           rental={r}
-          onReturn={handleReturn}
-          onArchive={handleArchive}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onConfirm={handleConfirmClick}
         />
       ))}
 
-      {filteredRentals.length === 0 && (
+      {!filtered.length && (
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12" />
-          <h3>No se encontraron rentas</h3>
+          <p>No hay cotizaciones</p>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Confirmar pedido"
+        description="¿Deseas confirmar este pedido?"
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmOrder}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   )
 }
