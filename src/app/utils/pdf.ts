@@ -1,278 +1,231 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import { Loss, Rental } from "../types";
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import { Loss, Rental } from "../types"
 
 /* =======================
-   COLORES Y ESTILOS
+   ESTILO CORPORATIVO
 ======================= */
 
-const PRIMARY = [37, 99, 235];
-const DANGER = [220, 38, 38];
-const GRAY = [107, 114, 128];
+const DARK = [33, 33, 33]
+const GRAY = [120, 120, 120]
 
-let cachedLogo: string | null = null;
+let cachedLogo: string | null = null
 
 /* =======================
-   CARGAR LOGO (BASE64)
+   UTILIDADES
 ======================= */
 
-const loadLogo = async (): Promise<string> => {
-  if (cachedLogo) return cachedLogo;
+const formatDate = (date = new Date()) =>
+  date.toISOString().split("T")[0]
 
-  const response = await fetch("/logoCabrera.jpeg");
-  const blob = await response.blob();
-
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      cachedLogo = reader.result as string;
-      resolve(cachedLogo);
-    };
-    reader.readAsDataURL(blob);
-  });
-};
+const sanitize = (text: string) =>
+  text.replace(/\s+/g, "_").replace(/[^\w]/g, "")
 
 /* =======================
-   HEADER CON LOGO
+   CARGAR LOGO (SEGURO)
 ======================= */
 
-const drawHeader = async (
-  doc: jsPDF,
-  title: string,
-  subtitle?: string
-) => {
-  // Fondo
-  doc.setFillColor(243, 244, 246);
-  doc.rect(0, 0, 210, 38, "F");
+const loadLogo = async (): Promise<string | null> => {
+  try {
+    if (cachedLogo) return cachedLogo
 
-  // Logo
-  const logo = await loadLogo();
-  doc.addImage(logo, "JPEG", 20, 10, 24, 18);
+    const res = await fetch("/logoCabrera.jpeg")
+    const blob = await res.blob()
 
-  // Título
-  doc.setFontSize(20);
-  doc.setTextColor(...PRIMARY);
-  doc.text(title, 50, 22);
+    return await new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        cachedLogo = reader.result as string
+        resolve(cachedLogo)
+      }
+      reader.readAsDataURL(blob)
+    })
+  } catch {
+    return null
+  }
+}
 
-  // Subtítulo
-  if (subtitle) {
-    doc.setFontSize(10);
-    doc.setTextColor(...GRAY);
-    doc.text(subtitle, 50, 29);
+/* =======================
+   HEADER SIMPLE
+======================= */
+
+const drawHeader = async (doc: jsPDF, title: string) => {
+  const logo = await loadLogo()
+
+  if (logo) {
+    doc.addImage(logo, "JPEG", 20, 15, 30, 20)
   }
 
-  // Línea separadora
-  doc.setDrawColor(...PRIMARY);
-  doc.setLineWidth(0.5);
-  doc.line(20, 40, 190, 40);
-};
+  doc.setFontSize(16)
+  doc.setTextColor(...DARK)
+  doc.text("CABRERA MOBILIARIA", 60, 22)
 
-const drawFooter = (doc: jsPDF) => {
-  doc.setFontSize(8);
-  doc.setTextColor(...GRAY);
-  doc.text(
-    `Documento generado el ${new Date().toLocaleString("es-MX")}`,
-    105,
-    285,
-    { align: "center" }
-  );
-};
+  doc.setFontSize(10)
+  doc.setTextColor(...GRAY)
+  doc.text("Renta de mobiliario para eventos", 60, 28)
+
+  doc.setFontSize(14)
+  doc.setTextColor(...DARK)
+  doc.text(title, 20, 50)
+
+  doc.setDrawColor(...GRAY)
+  doc.line(20, 54, 190, 54)
+}
+
+/* =======================
+   BLOQUE INFO
+======================= */
 
 const drawInfoBlock = (
   doc: jsPDF,
   startY: number,
   data: { label: string; value: string }[]
 ) => {
-  let y = startY;
-  doc.setFontSize(10);
+  let y = startY
+  doc.setFontSize(10)
 
   data.forEach(({ label, value }) => {
-    doc.setTextColor(...GRAY);
-    doc.text(label, 20, y);
-    doc.setTextColor(0, 0, 0);
-    doc.text(value, 70, y);
-    y += 7;
-  });
+    doc.setTextColor(...GRAY)
+    doc.text(label, 20, y)
+    doc.setTextColor(...DARK)
+    doc.text(value, 70, y)
+    y += 7
+  })
 
-  return y;
-};
+  return y
+}
+
+/* =======================
+   FOOTER
+======================= */
+
+const drawFooter = (doc: jsPDF) => {
+  doc.setFontSize(8)
+  doc.setTextColor(...GRAY)
+  doc.text(
+    `Documento generado el ${new Date().toLocaleString("es-MX")}`,
+    105,
+    285,
+    { align: "center" }
+  )
+}
 
 /* =======================
    REPORTE DE PÉRDIDAS
 ======================= */
 
 export const generateLossPDF = async (loss: Loss) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF()
 
-  await drawHeader(
-    doc,
-    "Reporte de Pérdidas",
-    "Control interno de daños y extravíos"
-  );
+  await drawHeader(doc, "Reporte de Pérdidas")
 
-  const infoEndY = drawInfoBlock(doc, 55, [
+  const infoEndY = drawInfoBlock(doc, 65, [
     { label: "Folio:", value: loss.id },
     {
-      label: "Fecha de reporte:",
+      label: "Fecha:",
       value: new Date(loss.reportDate).toLocaleDateString("es-MX"),
     },
     { label: "Cliente:", value: loss.customerName },
-    { label: "ID de renta:", value: loss.rentalId },
-  ]);
-
-  const tableData = loss.items.map((item) => [
-    item.productName,
-    item.quantity.toString(),
-    item.lossType === "broken" ? "Rotura" : "Extravío",
-    `$${item.unitPrice.toFixed(2)}`,
-    `$${item.totalLoss.toFixed(2)}`,
-  ]);
+    { label: "Renta:", value: loss.rentalId },
+  ])
 
   autoTable(doc, {
-    startY: infoEndY + 6,
-    head: [["Artículo", "Cantidad", "Tipo", "Precio Unitario", "Total"]],
-    body: tableData,
+    startY: infoEndY + 8,
+    head: [["Artículo", "Cantidad", "Tipo", "Precio", "Total"]],
+    body: loss.items.map((i) => [
+      i.productName,
+      i.quantity,
+      i.lossType === "broken" ? "Daño" : "Extravío",
+      `$${i.unitPrice.toFixed(2)}`,
+      `$${i.totalLoss.toFixed(2)}`,
+    ]),
     theme: "grid",
+    styles: { fontSize: 10 },
     headStyles: {
-      fillColor: DANGER,
-      textColor: [255, 255, 255],
-      fontStyle: "bold",
+      fillColor: [240, 240, 240],
+      textColor: DARK,
     },
-    styles: {
-      fontSize: 10,
-      cellPadding: 3,
-    },
-    alternateRowStyles: {
-      fillColor: [249, 250, 251],
-    },
-  });
+  })
 
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  const y = (doc as any).lastAutoTable.finalY + 10
 
-  doc.setFontSize(12);
-  doc.setTextColor(...DANGER);
-  doc.text(
-    `TOTAL DE PÉRDIDAS: $${loss.totalLoss.toFixed(2)}`,
-    190,
-    finalY,
-    { align: "right" }
-  );
+  doc.setFontSize(12)
+  doc.text(`TOTAL: $${loss.totalLoss.toFixed(2)}`, 190, y, {
+    align: "right",
+  })
 
-  if (loss.notes) {
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(10);
-    doc.text("Notas:", 20, finalY + 12);
-    doc.setFontSize(9);
-    const splitNotes = doc.splitTextToSize(loss.notes, 170);
-    doc.text(splitNotes, 20, finalY + 18);
-  }
+  drawFooter(doc)
 
-  drawFooter(doc);
-  doc.save(`reporte-perdidas-${loss.id}.pdf`);
-};
+  const filename = `Perdidas_${sanitize(
+    loss.customerName
+  )}_${loss.id}_${formatDate()}.pdf`
+
+  doc.save(filename)
+}
 
 /* =======================
    FACTURA / COTIZACIÓN
 ======================= */
 
 export const generateInvoicePDF = async (rental: Rental) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF()
 
-  await drawHeader(
-    doc,
-    "Factura / Cotización",
-    "Servicio de renta de mobiliario"
-  );
+  await drawHeader(doc, "Cotización / Factura")
 
-  const infoEndY = drawInfoBlock(doc, 55, [
+  const today = formatDate()
+
+  const infoEndY = drawInfoBlock(doc, 65, [
     { label: "Folio:", value: rental.id },
     { label: "Cliente:", value: rental.customerName },
+    { label: "Fecha cotización:", value: today },
     {
-      label: "Fecha de renta:",
-      value: new Date(rental.rentalDate).toLocaleDateString("es-MX"),
+      label: "Entrega:",
+      value: new Date(rental.deliveryDate).toLocaleDateString("es-MX"),
     },
     {
-      label: "Fecha del evento:",
-      value: new Date(rental.eventDate).toLocaleDateString("es-MX"),
+      label: "Recolección:",
+      value: new Date(rental.returnDate).toLocaleDateString("es-MX"),
     },
-    {
-      label: "Fecha de devolución:",
-      value: rental.returnDate
-        ? new Date(rental.returnDate).toLocaleDateString("es-MX")
-        : "Pendiente",
-    },
-  ]);
-
-  const tableData = rental.items.map((item) => [
-    item.productName,
-    item.quantity.toString(),
-    `$${item.unitPrice.toFixed(2)}`,
-    `$${item.subtotal.toFixed(2)}`,
-  ]);
+  ])
 
   autoTable(doc, {
-    startY: infoEndY + 6,
-    head: [["Artículo", "Cantidad", "Precio Unitario", "Subtotal"]],
-    body: tableData,
-    theme: "striped",
+    startY: infoEndY + 8,
+    head: [["Artículo", "Cantidad", "Precio", "Subtotal"]],
+    body: rental.items.map((i) => [
+      i.productName,
+      i.quantity,
+      `$${i.unitPrice.toFixed(2)}`,
+      `$${i.subtotal.toFixed(2)}`,
+    ]),
+    theme: "grid",
+    styles: { fontSize: 10 },
     headStyles: {
-      fillColor: PRIMARY,
-      textColor: [255, 255, 255],
-      fontStyle: "bold",
+      fillColor: [240, 240, 240],
+      textColor: DARK,
     },
-    styles: {
-      fontSize: 10,
-      cellPadding: 3,
-    },
-  });
+  })
 
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  const y = (doc as any).lastAutoTable.finalY + 10
 
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`Subtotal: $${rental.subtotal.toFixed(2)}`, 190, finalY, {
+  doc.setFontSize(11)
+  doc.text(`Subtotal: $${rental.subtotal.toFixed(2)}`, 190, y, {
     align: "right",
-  });
+  })
 
-  let offset = 7;
-
-  if (rental.discount > 0) {
-    doc.setTextColor(...DANGER);
-    doc.text(
-      `Descuento: -$${rental.discount.toFixed(2)}`,
-      190,
-      finalY + offset,
-      { align: "right" }
-    );
-    offset += 7;
-  }
-
-  doc.setFontSize(14);
-  doc.setTextColor(...PRIMARY);
-  doc.text(`TOTAL: $${rental.total.toFixed(2)}`, 190, finalY + offset, {
+  doc.text(`Descuento: $${rental.discount.toFixed(2)}`, 190, y + 6, {
     align: "right",
-  });
+  })
 
-  if (rental.deposit > 0) {
-    doc.setFontSize(10);
-    doc.setTextColor(...GRAY);
-    doc.text(
-      `Depósito: $${rental.deposit.toFixed(2)}`,
-      190,
-      finalY + offset + 8,
-      { align: "right" }
-    );
-  }
+  doc.setFontSize(13)
+  doc.text(`TOTAL: $${rental.total.toFixed(2)}`, 190, y + 14, {
+    align: "right",
+  })
 
-  if (rental.notes) {
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(10);
-    doc.text("Notas:", 20, finalY + offset + 18);
-    doc.setFontSize(9);
-    const splitNotes = doc.splitTextToSize(rental.notes, 170);
-    doc.text(splitNotes, 20, finalY + offset + 24);
-  }
+  drawFooter(doc)
 
-  drawFooter(doc);
-  doc.save(`factura-${rental.id}.pdf`);
-};
+  const filename = `Cotizacion_${sanitize(
+    rental.customerName
+  )}_${rental.id}_${today}.pdf`
+
+  doc.save(filename)
+}
