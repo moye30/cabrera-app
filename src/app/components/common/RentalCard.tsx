@@ -147,7 +147,6 @@ export function RentalCard({
             Editar
           </Button>
 
-          {/* CONFIRMACIÓN DE ELIMINACIÓN */}
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="destructive" size="sm">
