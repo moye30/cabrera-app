@@ -1,13 +1,5 @@
-/* ======================================================
-   IMPORTS DE REACT
-====================================================== */
 
 import { useEffect, useMemo, useState } from "react"
-
-/* ======================================================
-   TIPOS
-====================================================== */
-
 import {
   Product,
   Customer,
@@ -15,11 +7,6 @@ import {
   Loss,
   DashboardStats,
 } from "./types"
-
-/* ======================================================
-   STORAGE (SIMULA BACKEND)
-====================================================== */
-
 import {
   getProducts,
   saveProducts,
@@ -30,11 +17,6 @@ import {
   getLosses,
   saveLosses,
 } from "./utils/storage"
-
-/* ======================================================
-   VISTAS
-====================================================== */
-
 import { Dashboard } from "./components/Dashboard"
 import { WeeklyDeliveries } from "./components/WeeklyDeliveries"
 import { ProductsManagement } from "./components/ProductsManagement"
@@ -43,17 +25,7 @@ import { RentalsManagement } from "./components/RentalsManagement"
 import { ConfirmedOrdersManagement } from "./components/ConfirmedOrdersManagement"
 import { LossesManagement } from "./components/LossesManagement"
 import { MonthlyReport } from "./components/Reports/MonthlyReport"
-
-/* ======================================================
-   LOGIN
-====================================================== */
-
 import { Login } from "./components/Login"
-
-/* ======================================================
-   UI + ICONOS
-====================================================== */
-
 import { Button } from "./components/ui/button"
 import {
   LayoutDashboard,
@@ -69,11 +41,6 @@ import {
   CheckCircle,
 } from "lucide-react"
 import { Toaster } from "./components/ui/sonner"
-
-/* ======================================================
-   VISTAS DISPONIBLES
-====================================================== */
-
 type ViewType =
   | "dashboard"
   | "products"
@@ -82,23 +49,9 @@ type ViewType =
   | "confirmedOrders"
   | "losses"
   | "reports"
-
-/* ======================================================
-   APP
-====================================================== */
-
 export default function App() {
-  /* =======================
-     AUTH
-  ======================= */
-
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
-
-  /* =======================
-     ESTADO GLOBAL
-  ======================= */
-
   const [products, setProducts] = useState<Product[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
   const [rentals, setRentals] = useState<Rental[]>([])
@@ -110,20 +63,12 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [rentalsMenuOpen, setRentalsMenuOpen] = useState(false)
 
-  /* =======================
-     CHECK LOGIN
-  ======================= */
-
   useEffect(() => {
     const auth =
       localStorage.getItem("isAuthenticated") === "true"
     setIsAuthenticated(auth)
     setAuthChecked(true)
   }, [])
-
-  /* =======================
-     CARGA DE DATOS
-  ======================= */
 
   useEffect(() => {
     if (!isAuthenticated) return
@@ -132,10 +77,6 @@ export default function App() {
     setRentals(getRentals())
     setLosses(getLosses())
   }, [isAuthenticated])
-
-  /* =======================
-     PERSISTENCIA
-  ======================= */
 
   useEffect(() => {
     if (products.length) saveProducts(products)
@@ -152,10 +93,6 @@ export default function App() {
   useEffect(() => {
     saveLosses(losses)
   }, [losses])
-
-  /* =======================
-     ESTADÍSTICAS
-  ======================= */
 
   const stats: DashboardStats = useMemo(() => {
     const returnedRentals = rentals.filter(
@@ -217,15 +154,8 @@ export default function App() {
     }
   }, [products, customers, rentals, losses])
 
-  /* =======================
-     ESPERA AUTH
-  ======================= */
 
   if (!authChecked) return null
-
-  /* =======================
-     LOGIN
-  ======================= */
 
   if (!isAuthenticated) {
     return (
@@ -241,9 +171,6 @@ export default function App() {
     )
   }
 
-  /* =======================
-     RENDER
-  ======================= */
 
   return (
     <div className="min-h-screen bg-background">
@@ -266,7 +193,7 @@ export default function App() {
               className="h-12"
             />
             <h1 className="text-xl font-semibold">
-              Cabrera Mobiliaria
+              Cabrera Mobiliario
             </h1>
           </div>
 

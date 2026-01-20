@@ -16,7 +16,9 @@ interface CustomerFormDialogProps {
   onOpenChange: (open: boolean) => void
   editingCustomer: Customer | null
   formData: {
+    company: string
     name: string
+    rfc: string
     email: string
     phone: string
     address: string
@@ -40,7 +42,9 @@ export function CustomerFormDialog({
         <Button
           onClick={() =>
             setFormData({
+              company: "",
               name: "",
+              rfc: "",
               email: "",
               phone: "",
               address: "",
@@ -62,6 +66,17 @@ export function CustomerFormDialog({
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
+            <Label>Empresa</Label>
+            <Input
+              value={formData.company}
+              onChange={(e) =>
+                setFormData({ ...formData, company: e.target.value })
+              }
+              placeholder="Nombre de la empresa (opcional)"
+            />
+          </div>
+
+          <div>
             <Label>Nombre Completo</Label>
             <Input
               value={formData.name}
@@ -69,6 +84,17 @@ export function CustomerFormDialog({
                 setFormData({ ...formData, name: e.target.value })
               }
               required
+            />
+          </div>
+
+          <div>
+            <Label>RFC</Label>
+            <Input
+              value={formData.rfc}
+              onChange={(e) =>
+                setFormData({ ...formData, rfc: e.target.value })
+              }
+              placeholder="RFC del cliente"
             />
           </div>
 
@@ -123,7 +149,7 @@ export function CustomerFormDialog({
             />
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
               variant="outline"

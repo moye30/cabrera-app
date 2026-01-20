@@ -18,7 +18,9 @@ export function CustomersManagement({
 }: CustomersManagementProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+  const [editingCustomer, setEditingCustomer] =
+    useState<Customer | null>(null)
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,7 +30,7 @@ export function CustomersManagement({
   })
 
   const filteredCustomers = customers.filter(
-    (c) =>
+    c =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -38,12 +40,14 @@ export function CustomersManagement({
 
     if (editingCustomer) {
       onCustomersChange(
-        customers.map((c) =>
+        customers.map(c =>
           c.id === editingCustomer.id
             ? {
                 ...c,
                 ...formData,
-                discountPercentage: Number(formData.discountPercentage),
+                discountPercentage: Number(
+                  formData.discountPercentage
+                ),
               }
             : c
         )
@@ -58,7 +62,9 @@ export function CustomersManagement({
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
-          discountPercentage: Number(formData.discountPercentage),
+          discountPercentage: Number(
+            formData.discountPercentage
+          ),
           totalOrders: 0,
           createdAt: new Date().toISOString(),
         },
@@ -77,9 +83,15 @@ export function CustomersManagement({
     setIsDialogOpen(false)
   }
 
+  const handleDeleteCustomer = (customer: Customer) => {
+    onCustomersChange(
+      customers.filter(c => c.id !== customer.id)
+    )
+    toast.success("Cliente eliminado correctamente")
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl tracking-tight">
@@ -100,34 +112,34 @@ export function CustomersManagement({
         />
       </div>
 
-      {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Buscar clientes..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
           className="pl-10"
         />
       </div>
 
-      {/* Customers */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredCustomers.map((customer) => (
+        {filteredCustomers.map(customer => (
           <CustomerCard
             key={customer.id}
             customer={customer}
-            onEdit={(c) => {
+            onEdit={c => {
               setEditingCustomer(c)
               setFormData({
                 name: c.name,
                 email: c.email,
                 phone: c.phone,
                 address: c.address,
-                discountPercentage: c.discountPercentage.toString(),
+                discountPercentage:
+                  c.discountPercentage.toString(),
               })
               setIsDialogOpen(true)
             }}
+            onDelete={handleDeleteCustomer}
           />
         ))}
       </div>
