@@ -36,6 +36,7 @@ import {
 ====================================================== */
 
 import { Dashboard } from "./components/Dashboard"
+import { WeeklyDeliveries } from "./components/WeeklyDeliveries"
 import { ProductsManagement } from "./components/ProductsManagement"
 import { CustomersManagement } from "./components/CustomersManagement"
 import { RentalsManagement } from "./components/RentalsManagement"
@@ -321,7 +322,6 @@ export default function App() {
               Clientes
             </Button>
 
-            {/* RENTAS */}
             <Button
               variant={
                 currentView === "quotations" ||
@@ -354,9 +354,7 @@ export default function App() {
                       : "ghost"
                   }
                   className="justify-start text-sm"
-                  onClick={() =>
-                    setCurrentView("confirmedOrders")
-                  }
+                  onClick={() => setCurrentView("confirmedOrders")}
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Pedidos confirmados
@@ -388,7 +386,10 @@ export default function App() {
         <main className="flex-1 p-6 md:p-8 overflow-auto">
           <div className="max-w-7xl mx-auto">
             {currentView === "dashboard" && (
-              <Dashboard stats={stats} />
+              <div className="space-y-6">
+                <Dashboard stats={stats} />
+                <WeeklyDeliveries rentals={rentals} />
+              </div>
             )}
 
             {currentView === "products" && (

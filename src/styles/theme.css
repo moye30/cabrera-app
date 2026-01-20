@@ -52,4 +52,22 @@
     border-color: var(--ring);
     box-shadow: 0 0 0 1px var(--ring);
   }
+
+  [data-slot="select-trigger"] {
+    background-color: var(--input-background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  [data-slot="select-trigger"]:focus,
+  [data-slot="select-trigger"]:focus-visible {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 1px var(--ring);
+  }
+
+  [data-slot="select-content"] {
+    background-color: var(--popover);
+    border: 1px solid var(--border);
+  }
 }
