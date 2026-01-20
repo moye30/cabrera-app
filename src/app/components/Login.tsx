@@ -19,7 +19,6 @@ export function Login({ onLogin }: LoginProps) {
     e.preventDefault()
     setLoading(true)
 
-    // Simulación de validación
     setTimeout(() => {
       if (username === "admin" && password === "123456") {
         toast.success("Bienvenido a Cabrera Mobiliaria")
@@ -32,33 +31,44 @@ export function Login({ onLogin }: LoginProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted to-background">
-      <Card className="w-full max-w-md shadow-xl border-muted">
-        <CardContent className="p-8 space-y-6">
-          <div className="flex flex-col items-center gap-3">
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{
+        background:
+          "linear-gradient(135deg, oklch(28.2% 0.091 267.935), oklch(22% 0.06 267.935))",
+      }}
+    >
+      <Card className="w-full max-w-md shadow-2xl border border-white/10 bg-white">
+        <CardContent className="p-10 space-y-8">
+          {/* LOGO + TITULO */}
+          <div className="flex flex-col items-center gap-4">
             <img
               src="/logoCabrera.jpeg"
               alt="Cabrera Mobiliaria"
               className="h-20 w-auto"
             />
-            <div className="text-center">
-              <h1 className="text-2xl font-bold tracking-tight">
+
+            <div className="text-center space-y-1">
+              <h1 className="text-2xl font-semibold tracking-wide text-neutral-900">
                 Cabrera Mobiliaria
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Sistema de gestión de rentas
+              <p className="text-sm text-neutral-500">
+                Sistema de gestión de rentas y pedidos
               </p>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* FORMULARIO */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
-              <Label>Usuario</Label>
+              <Label className="text-sm text-neutral-700">
+                Usuario
+              </Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                 <Input
-                  className="pl-9"
-                  placeholder="Ingresa tu usuario"
+                  className="pl-9 h-11"
+                  placeholder="Usuario"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -67,12 +77,14 @@ export function Login({ onLogin }: LoginProps) {
             </div>
 
             <div className="space-y-1">
-              <Label>Contraseña</Label>
+              <Label className="text-sm text-neutral-700">
+                Contraseña
+              </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                 <Input
                   type="password"
-                  className="pl-9"
+                  className="pl-9 h-11"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -81,16 +93,23 @@ export function Login({ onLogin }: LoginProps) {
               </div>
             </div>
 
+            {/* BOTÓN */}
             <Button
               type="submit"
-              className="w-full"
               disabled={loading}
+              className="w-full h-11 text-base font-medium"
+              style={{
+                background:
+                  "oklch(57.7% 0.245 27.325)",
+                color: "white",
+              }}
             >
               {loading ? "Validando..." : "Iniciar sesión"}
             </Button>
           </form>
 
-          <div className="text-center text-xs text-muted-foreground">
+          {/* FOOTER */}
+          <div className="text-center text-xs text-neutral-400 pt-2">
             © {new Date().getFullYear()} Cabrera Mobiliaria
           </div>
         </CardContent>
