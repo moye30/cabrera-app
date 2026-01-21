@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react"
 import {
   Product,
@@ -41,6 +40,7 @@ import {
   CheckCircle,
 } from "lucide-react"
 import { Toaster } from "./components/ui/sonner"
+
 type ViewType =
   | "dashboard"
   | "products"
@@ -49,9 +49,11 @@ type ViewType =
   | "confirmedOrders"
   | "losses"
   | "reports"
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
+
   const [products, setProducts] = useState<Product[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
   const [rentals, setRentals] = useState<Rental[]>([])
@@ -154,7 +156,6 @@ export default function App() {
     }
   }, [products, customers, rentals, losses])
 
-
   if (!authChecked) return null
 
   if (!isAuthenticated) {
@@ -171,10 +172,8 @@ export default function App() {
     )
   }
 
-
   return (
     <div className="min-h-screen bg-background">
-      {/* HEADER */}
       <header className="border-b sticky top-0 bg-background/95 backdrop-blur z-50">
         <div className="flex h-16 items-center px-4 gap-4">
           <Button
@@ -213,7 +212,6 @@ export default function App() {
       </header>
 
       <div className="flex">
-        {/* SIDEBAR */}
         <aside
           className={`fixed md:sticky top-16 left-0 z-40 h-[calc(100vh-4rem)] w-64 border-r bg-background transition-transform ${
             mobileMenuOpen
@@ -309,7 +307,6 @@ export default function App() {
           </nav>
         </aside>
 
-        {/* CONTENIDO */}
         <main className="flex-1 p-6 md:p-8 overflow-auto">
           <div className="max-w-7xl mx-auto">
             {currentView === "dashboard" && (
@@ -343,7 +340,10 @@ export default function App() {
             )}
 
             {currentView === "confirmedOrders" && (
-              <ConfirmedOrdersManagement rentals={rentals} />
+              <ConfirmedOrdersManagement
+                rentals={rentals}
+                onRentalsChange={setRentals}
+              />
             )}
 
             {currentView === "losses" && (

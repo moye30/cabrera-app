@@ -22,7 +22,9 @@ export function CustomersManagement({
     useState<Customer | null>(null)
 
   const [formData, setFormData] = useState({
+    company: "",
     name: "",
+    rfc: "",
     email: "",
     phone: "",
     address: "",
@@ -32,6 +34,7 @@ export function CustomersManagement({
   const filteredCustomers = customers.filter(
     c =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -58,7 +61,9 @@ export function CustomersManagement({
         ...customers,
         {
           id: Date.now().toString(),
+          company: formData.company,
           name: formData.name,
+          rfc: formData.rfc,
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
@@ -73,21 +78,17 @@ export function CustomersManagement({
     }
 
     setFormData({
+      company: "",
       name: "",
+      rfc: "",
       email: "",
       phone: "",
       address: "",
       discountPercentage: "",
     })
+
     setEditingCustomer(null)
     setIsDialogOpen(false)
-  }
-
-  const handleDeleteCustomer = (customer: Customer) => {
-    onCustomersChange(
-      customers.filter(c => c.id !== customer.id)
-    )
-    toast.success("Cliente eliminado correctamente")
   }
 
   return (
@@ -130,7 +131,9 @@ export function CustomersManagement({
             onEdit={c => {
               setEditingCustomer(c)
               setFormData({
+                company: c.company || "",
                 name: c.name,
+                rfc: c.rfc || "",
                 email: c.email,
                 phone: c.phone,
                 address: c.address,
@@ -139,7 +142,6 @@ export function CustomersManagement({
               })
               setIsDialogOpen(true)
             }}
-            onDelete={handleDeleteCustomer}
           />
         ))}
       </div>

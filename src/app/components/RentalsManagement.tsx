@@ -26,7 +26,6 @@ export function RentalsManagement({
   const [editingRental, setEditingRental] =
     useState<Rental | null>(null)
 
-  /* 🔔 CONFIRMAR PEDIDO */
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [rentalToConfirm, setRentalToConfirm] =
     useState<Rental | null>(null)
@@ -39,17 +38,12 @@ export function RentalsManagement({
     notes: "",
   })
 
-  /* 🔁 ESTO ES LO QUE SE HABÍA ROTO */
   const [itemForm, setItemForm] = useState({
     productId: "",
     quantity: "",
   })
 
   const [items, setItems] = useState<RentalItem[]>([])
-
-  /* =====================
-     AGREGAR PRODUCTO
-  ===================== */
 
   const handleAddItem = () => {
     const product = products.find(
@@ -100,10 +94,6 @@ export function RentalsManagement({
     setItems(items.filter(i => i.productId !== id))
   }
 
-  /* =====================
-     CREAR / EDITAR
-  ===================== */
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -144,30 +134,27 @@ export function RentalsManagement({
       )
       toast.success("Cotización actualizada")
     } else {
-     onRentalsChange([
-          ...rentals,
-          {
-            id: `C${Date.now()}`,
-            customerId: customer.id,
-            customerName: customer.name,
-
-            rentalDate: new Date()
-              .toISOString()
-              .split("T")[0],
-
-            deliveryDate: formData.eventDate, 
-            eventDate: formData.eventDate,
-            returnDate: formData.returnDate,
-
-            status: "pending",
-            items,
-            subtotal,
-            discount,
-            total,
-            deposit: 0,
-            notes: formData.notes,
-          },
-        ])
+      onRentalsChange([
+        ...rentals,
+        {
+          id: `C${Date.now()}`,
+          customerId: customer.id,
+          customerName: customer.name,
+          companyName: customer.company || "",
+          rentalDate: new Date()
+            .toISOString()
+            .split("T")[0],
+          eventDate: formData.eventDate,
+          returnDate: formData.returnDate,
+          status: "pending",
+          items,
+          subtotal,
+          discount,
+          total,
+          deposit: 0,
+          notes: formData.notes,
+        },
+      ])
 
       toast.success("Cotización creada")
     }
@@ -176,10 +163,6 @@ export function RentalsManagement({
     setEditingRental(null)
     setItems([])
   }
-
-  /* =====================
-     ACCIONES
-  ===================== */
 
   const handleEdit = (rental: Rental) => {
     setEditingRental(rental)

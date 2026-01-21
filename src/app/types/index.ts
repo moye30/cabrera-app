@@ -37,17 +37,16 @@ export interface Rental {
   id: string
   customerId: string
   customerName: string
+  companyName?: string
   rentalDate: string
-  deliveryDate: string
-  returnDate: string
   eventDate: string
+  returnDate: string
   status: "pending" | "active" | "returned" | "overdue"
   items: RentalItem[]
   subtotal: number
   discount: number
   total: number
   deposit: number
-
   notes: string
   archived?: boolean
 }

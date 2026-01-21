@@ -99,7 +99,10 @@ export function WeeklyDeliveries({ rentals }: { rentals: Rental[] }) {
                 >
                   <div className="flex justify-between items-start gap-4">
                     <div className="space-y-1">
-                      <p className="font-medium">
+                      <p className="font-semibold">
+                        {r.companyName || "Cliente sin empresa"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
                         {r.customerName}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -121,7 +124,7 @@ export function WeeklyDeliveries({ rentals }: { rentals: Rental[] }) {
                   <Separator className="my-2" />
 
                   <div className="text-xs text-muted-foreground">
-                    Entrega:{" "}
+                    Entrega programada:{" "}
                     {new Date(r.eventDate).toLocaleDateString(
                       "es-MX",
                       {
