@@ -7,7 +7,6 @@ import {
 } from "@/app/components/ui/card"
 
 import {
-  Package,
   Users,
   TrendingUp,
   AlertTriangle,
@@ -29,6 +28,7 @@ export function Dashboard({ stats }: DashboardProps) {
         </h2>
       </div>
 
+      {/* 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Rentas Activas"
@@ -42,13 +42,6 @@ export function Dashboard({ stats }: DashboardProps) {
           value={stats.totalCustomers}
           description="Clientes registrados"
           icon={Users}
-        />
-
-        <StatCard
-          title="Valor del Inventario"
-          value={`$${stats.inventoryValue.toLocaleString()}`}
-          description={`Disponibilidad: ${stats.availabilityRate.toFixed(1)}%`}
-          icon={Package}
         />
       </div>
 
@@ -81,6 +74,7 @@ export function Dashboard({ stats }: DashboardProps) {
           </CardContent>
         </Card>
       </div>
+      */}
     </div>
   )
 }

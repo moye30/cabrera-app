@@ -1,11 +1,18 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Product } from "../types"
 import { Input } from "./ui/input"
 import { Search, Package } from "lucide-react"
 import { toast } from "sonner"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "./ui/card"
 
 import { ProductCard } from "./common/ProductCard"
 import { ProductFormDialog } from "./common/ProductFormDialog"
+import { StatCard } from "./common/StatCard"
 
 interface ProductsManagementProps {
   products: Product[]
@@ -19,6 +26,23 @@ export function ProductsManagement({
   const [searchTerm, setSearchTerm] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+
+  // Calcular valor del inventario y disponibilidad
+  const { inventoryValue, availabilityRate } = useMemo(() => {
+    const invValue = products.reduce(
+      (total, p) => total + p.totalStock * p.unitPrice,
+      0
+    )
+    const totalStk = products.reduce((total, p) => total + p.totalStock, 0)
+    const availStk = products.reduce(
+      (total, p) => total + p.availableStock,
+      0
+    )
+    const availRate =
+      totalStk > 0 ? (availStk / totalStk) * 100 : 0
+
+    return { inventoryValue: invValue, availabilityRate: availRate }
+  }, [products])
 
   const [formData, setFormData] = useState({
     name: "",
@@ -115,6 +139,15 @@ export function ProductsManagement({
           formData={formData}
           setFormData={setFormData}
           onSubmit={handleSubmit}
+        />
+      </div>
+
+      <div className="grid gap-4">
+        <StatCard
+          title="Valor del Inventario"
+          value={`$${inventoryValue.toLocaleString()}`}
+          description={`Disponibilidad: ${availabilityRate.toFixed(1)}%`}
+          icon={Package}
         />
       </div>
 

@@ -38,7 +38,6 @@ export function LossesManagement({
 
   const [items, setItems] = useState<LossItem[]>([])
 
-  // Solo se pueden reportar pérdidas de rentas ya devueltas
   const returnedRentals = rentals.filter(
     (r) => r.status === "returned"
   )
@@ -72,7 +71,6 @@ export function LossesManagement({
     )
     if (!product) return
 
-    // PRECIO QUE SE COBRA POR PÉRDIDA
     const lossPrice = product.lossCost ?? product.unitPrice
 
     setItems([
@@ -82,8 +80,6 @@ export function LossesManagement({
         productName: product.name,
         quantity: qty,
         lossType: itemForm.lossType,
-
-        //  AQUÍ ESTÁ EL CAMBIO CLAVE
         unitPrice: lossPrice,
         totalLoss: qty * lossPrice,
       },
@@ -124,10 +120,7 @@ export function LossesManagement({
       notes: formData.notes,
     }
 
-    // Guardar reporte de pérdidas
     onLossesChange([...losses, newLoss])
-
-    // Reducir stock total por productos perdidos
     onProductsChange(
       products.map((p) => {
         const item = items.find((i) => i.productId === p.id)
