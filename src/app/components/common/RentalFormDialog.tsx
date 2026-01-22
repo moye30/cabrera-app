@@ -61,6 +61,7 @@ export function RentalFormDialog({
   }, [open])
 
   const [search, setSearch] = useState("")
+  const [searchCustomer, setSearchCustomer] = useState("")
 
   const filteredProducts = products
     .filter(p => p.availableStock > 0)
@@ -69,6 +70,12 @@ export function RentalFormDialog({
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.category.toLowerCase().includes(search.toLowerCase())
     )
+
+  const filteredCustomers = customers.filter(c =>
+    c.name.toLowerCase().includes(searchCustomer.toLowerCase()) ||
+    c.email.toLowerCase().includes(searchCustomer.toLowerCase()) ||
+    (c.company && c.company.toLowerCase().includes(searchCustomer.toLowerCase()))
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -92,19 +99,38 @@ export function RentalFormDialog({
                 <Label>Cliente</Label>
                 <Select
                   value={formData.customerId}
-                  onValueChange={(v) =>
+                  onValueChange={(v) => {
                     setFormData({ ...formData, customerId: v })
-                  }
+                    setSearchCustomer("")
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar cliente" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customers.map(c => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
+                    <div className="px-2 py-2">
+                      <Input
+                        placeholder="Buscar por nombre, empresa o email..."
+                        className="h-8"
+                        value={searchCustomer}
+                        onChange={(e) => setSearchCustomer(e.target.value)}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredCustomers.length > 0 ? (
+                        filteredCustomers.map(c => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.company ? `${c.company} - ${c.name}` : c.name} ({c.email})
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-2 text-sm text-muted-foreground text-center">
+                          No se encontraron clientes
+                        </div>
+                      )}
+                    </div>
                   </SelectContent>
                 </Select>
               </div>
@@ -193,7 +219,6 @@ export function RentalFormDialog({
               </div>
             )}
 
-            {/* Notas */}
             <div>
               <Label>Notas</Label>
               <Textarea

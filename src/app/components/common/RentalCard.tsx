@@ -48,9 +48,11 @@ export function RentalCard({
           <CardTitle>
             {rental.companyName || rental.customerName}
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {rental.companyName && rental.customerName}
-          </p>
+          {rental.companyName && (
+            <p className="text-sm text-muted-foreground">
+              {rental.customerName}
+            </p>
+          )}
           <p className="text-xs text-muted-foreground">
             #{rental.id}
           </p>
@@ -94,23 +96,54 @@ export function RentalCard({
         </Button>
 
         {openDetails && (
-          <div className="border rounded-md">
-            <div className="grid grid-cols-3 gap-2 px-3 py-2 text-xs font-semibold bg-muted">
+          <div className="border rounded-md overflow-hidden">
+            <div className="grid grid-cols-4 gap-2 px-3 py-2 text-xs font-semibold bg-muted">
               <span>Producto</span>
               <span>Cantidad</span>
+              <span>Precio unitario</span>
               <span>Subtotal</span>
             </div>
 
             {rental.items.map(item => (
               <div
                 key={item.productId}
-                className="grid grid-cols-3 gap-2 px-3 py-2 text-sm border-t"
+                className="grid grid-cols-4 gap-2 px-3 py-2 text-sm border-t"
               >
                 <span>{item.productName}</span>
                 <span>{item.quantity}</span>
+                <span>${item.unitPrice.toFixed(2)}</span>
                 <span>${item.subtotal.toFixed(2)}</span>
               </div>
             ))}
+
+            <div className="border-t bg-muted/40 px-4 py-3 space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">
+                  Subtotal
+                </span>
+                <span>
+                  ${rental.subtotal.toFixed(2)}
+                </span>
+              </div>
+
+              {rental.discount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Descuento
+                  </span>
+                  <span>
+                    -${rental.discount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex justify-between font-semibold pt-1">
+                <span>Total</span>
+                <span>
+                  ${rental.total.toFixed(2)}
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -161,7 +194,7 @@ export function RentalCard({
           )}
         </div>
       </CardContent>
-
+        
       <ConfirmDialog
         open={confirmOpen}
         title="Eliminar pedido"

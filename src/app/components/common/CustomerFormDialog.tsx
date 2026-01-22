@@ -64,7 +64,7 @@ export function CustomerFormDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-">
           <div>
             <Label>Empresa</Label>
             <Input
@@ -83,6 +83,7 @@ export function CustomerFormDialog({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
+              placeholder="Nombre del cliente"
               required
             />
           </div>
@@ -106,6 +107,7 @@ export function CustomerFormDialog({
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
+              placeholder="Correo electronico"
               required
             />
           </div>
@@ -117,6 +119,7 @@ export function CustomerFormDialog({
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
+              placeholder="Numero de telefono"
               required
             />
           </div>
@@ -128,6 +131,7 @@ export function CustomerFormDialog({
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
               }
+              placeholder="Direccion"
               required
             />
           </div>
@@ -136,7 +140,7 @@ export function CustomerFormDialog({
             <Label>Descuento (%)</Label>
             <Input
               type="number"
-              min="0"
+              min=""
               max="100"
               value={formData.discountPercentage}
               onChange={(e) =>
@@ -145,6 +149,7 @@ export function CustomerFormDialog({
                   discountPercentage: e.target.value,
                 })
               }
+              placeholder="Ingresa el porcentaje de descuento para este cliente."
               required
             />
           </div>

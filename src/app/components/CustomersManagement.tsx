@@ -61,9 +61,9 @@ export function CustomersManagement({
         ...customers,
         {
           id: Date.now().toString(),
-          company: formData.company,
+          company: formData.company || undefined,
           name: formData.name,
-          rfc: formData.rfc,
+          rfc: formData.rfc || undefined,
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
@@ -89,6 +89,11 @@ export function CustomersManagement({
 
     setEditingCustomer(null)
     setIsDialogOpen(false)
+  }
+
+  const handleDelete = (customer: Customer) => {
+    onCustomersChange(customers.filter(c => c.id !== customer.id))
+    toast.success("Cliente eliminado correctamente")
   }
 
   return (
@@ -142,6 +147,7 @@ export function CustomersManagement({
               })
               setIsDialogOpen(true)
             }}
+            onDelete={handleDelete}
           />
         ))}
       </div>

@@ -40,7 +40,6 @@ export function Login({ onLogin }: LoginProps) {
     >
       <Card className="w-full max-w-md shadow-2xl border border-white/10 bg-white">
         <CardContent className="p-10 space-y-8">
-          {/* LOGO + TITULO */}
           <div className="flex flex-col items-center gap-4">
             <img
               src="/logoCabrera.jpeg"
@@ -58,7 +57,6 @@ export function Login({ onLogin }: LoginProps) {
             </div>
           </div>
 
-          {/* FORMULARIO */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
               <Label className="text-sm text-neutral-700">
@@ -93,7 +91,6 @@ export function Login({ onLogin }: LoginProps) {
               </div>
             </div>
 
-            {/* BOTÓN */}
             <Button
               type="submit"
               disabled={loading}
@@ -108,7 +105,6 @@ export function Login({ onLogin }: LoginProps) {
             </Button>
           </form>
 
-          {/* FOOTER */}
           <div className="text-center text-xs text-neutral-400 pt-2">
             © {new Date().getFullYear()} Cabrera Mobiliaria
           </div>

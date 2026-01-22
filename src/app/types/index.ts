@@ -17,6 +17,8 @@ export interface Product {
 export interface Customer {
   id: string;
   name: string;
+  company?: string;
+  rfc?: string;
   email: string;
   phone: string;
   address: string;

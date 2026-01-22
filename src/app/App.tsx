@@ -187,13 +187,11 @@ export default function App() {
 
           <div className="flex items-center gap-2">
             <img
-              src="/logoCabrera.jpeg"
+              src="/cabreraLG.png"
               alt="Cabrera Mobiliaria"
-              className="h-12"
+              className="h-20 w-auto object-contain"
             />
-            <h1 className="text-xl font-semibold">
-              Cabrera Mobiliario
-            </h1>
+
           </div>
 
           <Button
@@ -212,6 +210,14 @@ export default function App() {
       </header>
 
       <div className="flex">
+        {/* Overlay para cerrar menú móvil */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
         <aside
           className={`fixed md:sticky top-16 left-0 z-40 h-[calc(100vh-4rem)] w-64 border-r bg-background transition-transform ${
             mobileMenuOpen
@@ -223,7 +229,10 @@ export default function App() {
             <Button
               variant={currentView === "dashboard" ? "secondary" : "ghost"}
               className="justify-start"
-              onClick={() => setCurrentView("dashboard")}
+              onClick={() => {
+                setCurrentView("dashboard")
+                setMobileMenuOpen(false)
+              }}
             >
               <LayoutDashboard className="mr-2 h-4 w-4" />
               Inicio
@@ -232,7 +241,10 @@ export default function App() {
             <Button
               variant={currentView === "products" ? "secondary" : "ghost"}
               className="justify-start"
-              onClick={() => setCurrentView("products")}
+              onClick={() => {
+                setCurrentView("products")
+                setMobileMenuOpen(false)
+              }}
             >
               <Package className="mr-2 h-4 w-4" />
               Inventario
@@ -241,7 +253,10 @@ export default function App() {
             <Button
               variant={currentView === "customers" ? "secondary" : "ghost"}
               className="justify-start"
-              onClick={() => setCurrentView("customers")}
+              onClick={() => {
+                setCurrentView("customers")
+                setMobileMenuOpen(false)
+              }}
             >
               <Users className="mr-2 h-4 w-4" />
               Clientes
@@ -266,7 +281,10 @@ export default function App() {
                 <Button
                   variant={currentView === "quotations" ? "secondary" : "ghost"}
                   className="justify-start text-sm"
-                  onClick={() => setCurrentView("quotations")}
+                  onClick={() => {
+                    setCurrentView("quotations")
+                    setMobileMenuOpen(false)
+                  }}
                 >
                   <FileText className="mr-2 h-4 w-4" />
                   Cotizaciones
@@ -279,7 +297,10 @@ export default function App() {
                       : "ghost"
                   }
                   className="justify-start text-sm"
-                  onClick={() => setCurrentView("confirmedOrders")}
+                  onClick={() => {
+                    setCurrentView("confirmedOrders")
+                    setMobileMenuOpen(false)
+                  }}
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Pedidos confirmados
@@ -290,7 +311,10 @@ export default function App() {
             <Button
               variant={currentView === "losses" ? "secondary" : "ghost"}
               className="justify-start"
-              onClick={() => setCurrentView("losses")}
+              onClick={() => {
+                setCurrentView("losses")
+                setMobileMenuOpen(false)
+              }}
             >
               <AlertTriangle className="mr-2 h-4 w-4" />
               Pérdidas
@@ -299,7 +323,10 @@ export default function App() {
             <Button
               variant={currentView === "reports" ? "secondary" : "ghost"}
               className="justify-start"
-              onClick={() => setCurrentView("reports")}
+              onClick={() => {
+                setCurrentView("reports")
+                setMobileMenuOpen(false)
+              }}
             >
               <BarChart3 className="mr-2 h-4 w-4" />
               Reportes
@@ -336,13 +363,17 @@ export default function App() {
                 products={products}
                 customers={customers}
                 onRentalsChange={setRentals}
+                onProductsChange={setProducts}
               />
             )}
 
             {currentView === "confirmedOrders" && (
               <ConfirmedOrdersManagement
                 rentals={rentals}
+                products={products}
+                customers={customers}
                 onRentalsChange={setRentals}
+                onProductsChange={setProducts}
               />
             )}
 

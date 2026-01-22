@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { LossItem, Rental, Product } from "@/app/types"
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
@@ -49,8 +50,15 @@ export function LossFormDialog({
   onRemoveItem,
   onSubmit,
 }: LossFormDialogProps) {
+  const [searchTerm, setSearchTerm] = useState("")
+  
   const selectedRental = rentals.find(
     (r) => r.id === formData.rentalId
+  )
+
+  const filteredRentals = rentals.filter((r) =>
+    r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.customerName.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
@@ -72,19 +80,38 @@ export function LossFormDialog({
             <Label>Renta Devuelta</Label>
             <Select
               value={formData.rentalId}
-              onValueChange={(v) =>
+              onValueChange={(v) => {
                 setFormData({ ...formData, rentalId: v })
-              }
+                setSearchTerm("")
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar renta" />
               </SelectTrigger>
               <SelectContent>
-                {rentals.map((r) => (
-                  <SelectItem key={r.id} value={r.id}>
-                    {r.id} - {r.customerName}
-                  </SelectItem>
-                ))}
+                <div className="px-2 py-2">
+                  <Input
+                    placeholder="Buscar por ID o cliente..."
+                    className="h-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto">
+                  {filteredRentals.length > 0 ? (
+                    filteredRentals.map((r) => (
+                      <SelectItem key={r.id} value={r.id}>
+                        {r.id} - {r.customerName}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-2 text-sm text-muted-foreground text-center">
+                      No se encontraron rentas
+                    </div>
+                  )}
+                </div>
               </SelectContent>
             </Select>
           </div>

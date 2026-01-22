@@ -98,7 +98,6 @@ export function ProductCard({
         </CardHeader>
 
         <CardContent className="space-y-3">
-          {/* Precios */}
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span>Precio renta:</span>
@@ -122,7 +121,6 @@ export function ProductCard({
             </div>
           </div>
 
-          {/* Stock */}
           <div className="space-y-1 text-sm pt-2 border-t">
             <div className="flex justify-between">
               <span>Disponible:</span>

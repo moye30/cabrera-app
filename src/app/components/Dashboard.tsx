@@ -23,14 +23,12 @@ interface DashboardProps {
 export function Dashboard({ stats }: DashboardProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h2 className="text-3xl tracking-tight font-bold">
           Inicio
         </h2>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Rentas Activas"
@@ -54,7 +52,6 @@ export function Dashboard({ stats }: DashboardProps) {
         />
       </div>
 
-      {/* Monthly Summary */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="col-span-2">
           <CardHeader>

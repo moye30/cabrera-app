@@ -103,6 +103,7 @@ export function ProductFormDialog({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
+              placeholder="Nombre del producto"
               required
             />
           </div>
@@ -114,6 +115,7 @@ export function ProductFormDialog({
               onChange={(e) =>
                 setFormData({ ...formData, category: e.target.value })
               }
+              placeholder="Categoría del producto"
               required
             />
           </div>
@@ -127,6 +129,7 @@ export function ProductFormDialog({
               onChange={(e) =>
                 setFormData({ ...formData, totalStock: e.target.value })
               }
+              placeholder="Cantidad en stock"
               required
             />
           </div>
@@ -141,6 +144,7 @@ export function ProductFormDialog({
               onChange={(e) =>
                 setFormData({ ...formData, unitPrice: e.target.value })
               }
+              placeholder="Precio por unidad"
               required
             />
           </div>
@@ -158,6 +162,7 @@ export function ProductFormDialog({
                   acquisitionCost: e.target.value,
                 })
               }
+              placeholder="Costo de adquisición del producto"
               required
             />
           </div>
@@ -175,6 +180,7 @@ export function ProductFormDialog({
                   lossCost: e.target.value,
                 })
               }
+              placeholder="Costo a cliente en caso de pérdida"
               required
             />
           </div>

@@ -5,6 +5,7 @@ import { FileText } from "lucide-react"
 import { toast } from "sonner"
 
 import { RentalFormDialog } from "./common/RentalFormDialog"
+import { RentalEditFormDialog } from "./common/RentalEditFormDialog"
 import { RentalCard } from "./common/RentalCard"
 import { ConfirmDialog } from "./common/ConfirmDialog"
 
@@ -13,6 +14,7 @@ interface RentalsManagementProps {
   products: Product[]
   customers: Customer[]
   onRentalsChange: (rentals: Rental[]) => void
+  onProductsChange: (products: Product[]) => void
 }
 
 export function RentalsManagement({
@@ -20,6 +22,7 @@ export function RentalsManagement({
   products,
   customers,
   onRentalsChange,
+  onProductsChange,
 }: RentalsManagementProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -45,6 +48,25 @@ export function RentalsManagement({
 
   const [items, setItems] = useState<RentalItem[]>([])
 
+  const isProductAvailableForDates = (
+    productId: string,
+    eventDate: string,
+    returnDate: string,
+    excludeRentalId?: string
+  ): boolean => {
+    const activeRentals = rentals.filter(
+      r => r.status === "active" && r.id !== excludeRentalId
+    )
+
+    return !activeRentals.some(r => {
+      const rentalItem = r.items.find(i => i.productId === productId)
+      if (!rentalItem) return false
+
+      const noConflict = returnDate <= r.eventDate || eventDate >= r.returnDate
+      return !noConflict 
+    })
+  }
+
   const handleAddItem = () => {
     const product = products.find(
       p => p.id === itemForm.productId
@@ -54,6 +76,21 @@ export function RentalsManagement({
     const qty = Number(itemForm.quantity)
     if (!qty || qty <= 0) {
       toast.error("Cantidad inválida")
+      return
+    }
+
+    if (!formData.eventDate || !formData.returnDate) {
+      toast.error("Debes especificar las fechas de entrega y recolección")
+      return
+    }
+
+    if (!isProductAvailableForDates(
+      product.id,
+      formData.eventDate,
+      formData.returnDate,
+      editingRental?.id
+    )) {
+      toast.error(`El producto "${product.name}" no está disponible para el rango de fechas seleccionado`)
       return
     }
 
@@ -174,6 +211,7 @@ export function RentalsManagement({
       notes: rental.notes,
     })
     setItems(rental.items)
+    setItemForm({ productId: "", quantity: "" })
     setIsDialogOpen(true)
   }
 
@@ -192,6 +230,22 @@ export function RentalsManagement({
   const handleConfirmOrder = () => {
     if (!rentalToConfirm) return
 
+    const updatedProducts = products.map(p => {
+      const rentalItem = rentalToConfirm.items.find(
+        item => item.productId === p.id
+      )
+      if (rentalItem) {
+        return {
+          ...p,
+          availableStock: p.availableStock - rentalItem.quantity,
+          rentedStock: p.rentedStock + rentalItem.quantity,
+        }
+      }
+      return p
+    })
+
+    onProductsChange(updatedProducts)
+    
     onRentalsChange(
       rentals.map(r =>
         r.id === rentalToConfirm.id
@@ -220,20 +274,53 @@ export function RentalsManagement({
       <div className="flex justify-between">
         <h2 className="text-3xl">Cotizaciones</h2>
 
-        <RentalFormDialog
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          customers={customers}
-          products={products}
-          formData={formData}
-          setFormData={setFormData}
-          itemForm={itemForm}
-          setItemForm={setItemForm}
-          items={items}
-          onAddItem={handleAddItem}
-          onRemoveItem={handleRemoveItem}
-          onSubmit={handleSubmit}
-        />
+        {!editingRental && (
+          <RentalFormDialog
+            open={isDialogOpen && !editingRental}
+            onOpenChange={setIsDialogOpen}
+            customers={customers}
+            products={products}
+            formData={formData}
+            setFormData={setFormData}
+            itemForm={itemForm}
+            setItemForm={setItemForm}
+            items={items}
+            onAddItem={handleAddItem}
+            onRemoveItem={handleRemoveItem}
+            onSubmit={handleSubmit}
+          />
+        )}
+
+        {editingRental && (
+          <RentalEditFormDialog
+            open={isDialogOpen && !!editingRental}
+            onOpenChange={(open) => {
+              setIsDialogOpen(open)
+              if (!open) {
+                setEditingRental(null)
+                setItems([])
+                setFormData({
+                  customerId: "",
+                  rentalDate: "",
+                  eventDate: "",
+                  returnDate: "",
+                  notes: "",
+                })
+              }
+            }}
+            rental={editingRental}
+            customers={customers}
+            products={products}
+            formData={formData}
+            setFormData={setFormData}
+            itemForm={itemForm}
+            setItemForm={setItemForm}
+            items={items}
+            onAddItem={handleAddItem}
+            onRemoveItem={handleRemoveItem}
+            onSubmit={handleSubmit}
+          />
+        )}
       </div>
 
       <Input
